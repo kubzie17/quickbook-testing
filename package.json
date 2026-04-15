@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test:api": "newman run postman/quickbook-api.postman_collection.json -e postman/quickbook-render.postman_environment.json",
-    "test:api:report": "newman run postman/quickbook-api.postman_collection.json -e postman/quickbook-render.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export reports/quickbook-api-report.html"
+    "test:api:report": "newman run postman/quickbook-api.postman_collection.json -e postman/quickbook-render.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export reports/quickbook-api-report.html",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "repository": {
     "type": "git",
@@ -18,5 +20,11 @@
   "bugs": {
     "url": "https://github.com/kubzie17/quickbook-testing/issues"
   },
-  "homepage": "https://github.com/kubzie17/quickbook-testing#readme"
+  "homepage": "https://github.com/kubzie17/quickbook-testing#readme",
+  "devDependencies": {
+    "cypress": "^15.13.1"
+  },
+  "dependencies": {
+    "wait-on": "^9.0.5"
+  }
 }

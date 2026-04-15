@@ -1,40 +1,68 @@
-name: API Tests
+name: Full Test Suite
 
 on:
   push:
     branches: [ main ]
   pull_request:
-    branches: [ main ]
-  workflow_dispatch:
 
 jobs:
-  newman-tests:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v5
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 18
 
-      - name: Install Newman and HTML reporter
+      - name: Install dependencies
+        run: npm install
+
+      # -------------------------
+      # API TESTS (NEWMAN)
+      # -------------------------
+      - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
 
-      - name: Create reports directory
-        run: mkdir -p reports
-
-      - name: Run Postman collection
+      - name: Run API tests
         run: |
           newman run postman/quickbook-api.postman_collection.json \
-            -e postman/quickbook-render.postman_environment.json \
-            -r cli,htmlextra \
-            --reporter-htmlextra-export reports/quickbook-api-report.html
+          -e postman/quickbook-render.postman_environment.json \
+          -r cli,htmlextra \
+          --reporter-htmlextra-export reports/api-report.html
 
-      - name: Upload Newman HTML report
+      # -------------------------
+      # FRONTEND (VITE)
+      # -------------------------
+      - name: Install frontend deps
+        run: |
+          cd frontend
+          npm install
+
+      - name: Start frontend
+        run: |
+          cd frontend
+          npm run dev &
+        env:
+          CI: true
+
+      - name: Wait for frontend
+        run: npx wait-on http://127.0.0.1:5173
+
+      # -------------------------
+      # CYPRESS TESTS
+      # -------------------------
+      - name: Run Cypress tests
+        run: npx cypress run --browser electron
+
+      # -------------------------
+      # UPLOAD REPORT
+      # -------------------------
+      - name: Upload API report
         uses: actions/upload-artifact@v4
         with:
-          name: quickbook-api-report
-          path: reports/quickbook-api-report.html
+          name: api-report
+          path: reports/api-report.html
