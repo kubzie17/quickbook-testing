@@ -55,6 +55,12 @@ jobs:
       # -------------------------
       # CYPRESS TESTS
       # -------------------------
+      - name: Install Cypress binary
+        run: npx cypress install
+
+      - name: Verify Cypress
+        run: npx cypress verify
+
       - name: Run Cypress tests
         run: npx cypress run --browser electron
 
