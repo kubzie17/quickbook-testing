@@ -1,0 +1,22 @@
+{
+  "name": "quickbook-testing",
+  "version": "1.0.0",
+  "description": "testing and automation",
+  "main": "index.js",
+  "scripts": {
+    "test:api": "newman run postman/quickbook-api.postman_collection.json -e postman/quickbook-render.postman_environment.json",
+    "test:api:report": "newman run postman/quickbook-api.postman_collection.json -e postman/quickbook-render.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export reports/quickbook-api-report.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kubzie17/quickbook-testing.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kubzie17/quickbook-testing/issues"
+  },
+  "homepage": "https://github.com/kubzie17/quickbook-testing#readme"
+}
