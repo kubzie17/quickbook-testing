@@ -1,5 +1,11 @@
 const express = require("express");
 const cors = require("cors");
+const {
+  validateLogin,
+  validateBookingInput,
+  createBooking,
+  deleteBookingById
+} = require("./utils");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -29,43 +35,23 @@ app.get("/bookings", (req, res) => {
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
+  const result = validateLogin(email, password);
 
-  if (email === "student@example.com" && password === "Password123") {
-    return res.json({
-      success: true,
-      message: "Login successful",
-      user: {
-        email: "student@example.com",
-        role: "user"
-      }
-    });
+  if (result.success) {
+    return res.json(result);
   }
 
-  return res.status(401).json({
-    success: false,
-    message: "Invalid email or password"
-  });
+  return res.status(401).json(result);
 });
 
 app.post("/bookings", (req, res) => {
-  const { name, email, service, date, time } = req.body;
+  const validation = validateBookingInput(req.body);
 
-  if (!name || !email || !service || !date || !time) {
-    return res.status(400).json({
-      success: false,
-      message: "All fields are required"
-    });
+  if (!validation.success) {
+    return res.status(400).json(validation);
   }
 
-  const newBooking = {
-    id: bookings.length + 1,
-    name,
-    email,
-    service,
-    date,
-    time
-  };
-
+  const newBooking = createBooking(bookings, req.body);
   bookings.push(newBooking);
 
   return res.status(201).json({
@@ -77,20 +63,20 @@ app.post("/bookings", (req, res) => {
 
 app.delete("/bookings/:id", (req, res) => {
   const bookingId = Number(req.params.id);
-  const initialLength = bookings.length;
+  const result = deleteBookingById(bookings, bookingId);
 
-  bookings = bookings.filter((booking) => booking.id !== bookingId);
+  bookings = result.updatedBookings;
 
-  if (bookings.length === initialLength) {
+  if (!result.success) {
     return res.status(404).json({
       success: false,
-      message: "Booking not found"
+      message: result.message
     });
   }
 
   return res.json({
     success: true,
-    message: "Booking cancelled successfully"
+    message: result.message
   });
 });
 
