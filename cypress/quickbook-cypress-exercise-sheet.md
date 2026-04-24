@@ -144,6 +144,7 @@ Ideas:
 - use clearer test names
 - keep steps grouped logically
 - keep assertions close to the action they verify
+- Create login custom command and use 
 
 ## Extra Stretch Tasks — Fast Finishers
 
@@ -163,7 +164,7 @@ Create one booking for each service:
 After deleting a booking, assert that the deleted booking name no longer appears on the page.
 
 ### Task 14 — Use `.within()`
-Find a specific booking in the bookings list and click the delete button inside that booking only.
+Find a specific booking in the bookings list and click the delete button inside that booking only. NB edit current delete tests, no need to create a new one
 
 ### Task 15 — Services page loads
 
