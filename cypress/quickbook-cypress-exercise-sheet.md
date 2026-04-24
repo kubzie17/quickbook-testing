@@ -165,8 +165,56 @@ After deleting a booking, assert that the deleted booking name no longer appears
 ### Task 14 — Use `.within()`
 Find a specific booking in the bookings list and click the delete button inside that booking only.
 
-### Task 15 — Custom command challenge
-Create a `cy.login()` custom command and use it in a full flow test.
+### Task 15 — Services page loads
+
+Create a test that:
+
+- visits `/services`
+- checks that the page heading is visible
+
+Expected text:
+Services
+
+---
+
+### Task 16 — Services are displayed
+
+Create a test that:
+
+- visits `/services`
+- waits for services to load
+- checks that at least one service appears
+
+Hint:
+You can check for text like:
+- Haircut
+- Consultation
+
+---
+
+### Task 17 — Multiple services exist
+
+Create a test that:
+
+- visits `/services`
+- checks that there is more than one list item
+
+Hint:
+Use `.find("li")` or similar
+
+---
+
+### Task 18 — Service details are correct
+
+Create a test that:
+
+- visits `/services`
+- checks that a service shows BOTH:
+  - a name
+  - a duration
+
+Example:
+Haircut - 30 minutes
 
 ---
 
