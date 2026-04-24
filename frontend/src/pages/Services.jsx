@@ -22,11 +22,11 @@ export default function Services() {
 
   return (
     <div>
-      <h2 data-testid="services-title">Services</h2>
+      <h2>Services</h2>
 
       {message && <p data-testid="services-message">{message}</p>}
 
-      <ul data-testid="services-list">
+      <ul>
         {services.map((service) => (
           <li data-testid="service-item" key={service.id}>
             <strong>{service.name}</strong> - {service.duration} minutes
