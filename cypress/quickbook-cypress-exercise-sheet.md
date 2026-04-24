@@ -145,6 +145,29 @@ Ideas:
 - keep steps grouped logically
 - keep assertions close to the action they verify
 
+## Extra Stretch Tasks — Fast Finishers
+
+### Task 11 — Services dropdown options
+Visit `/book` and check that the service dropdown contains:
+- Haircut
+- Consultation
+- Follow-up Session
+
+### Task 12 — Booking with each service
+Create one booking for each service:
+- Haircut
+- Consultation
+- Follow-up Session
+
+### Task 13 — Confirm deleted booking disappears
+After deleting a booking, assert that the deleted booking name no longer appears on the page.
+
+### Task 14 — Use `.within()`
+Find a specific booking in the bookings list and click the delete button inside that booking only.
+
+### Task 15 — Custom command challenge
+Create a `cy.login()` custom command and use it in a full flow test.
+
 ---
 
 ## Hints
