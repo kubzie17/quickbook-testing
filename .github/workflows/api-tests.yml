@@ -16,10 +16,26 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
-      - name: Install dependencies
+      # -------------------------
+      # ROOT DEPENDENCIES
+      # -------------------------
+      - name: Install root dependencies
         run: npm install
+
+      # -------------------------
+      # UNIT TESTS (JEST)
+      # -------------------------
+      - name: Install backend deps
+        run: |
+          cd backend
+          npm install
+
+      - name: Run unit tests
+        run: |
+          cd backend
+          npm test
 
       # -------------------------
       # API TESTS (NEWMAN)
@@ -29,6 +45,7 @@ jobs:
 
       - name: Run API tests
         run: |
+          mkdir -p reports
           newman run postman/quickbook-api.postman_collection.json \
           -e postman/quickbook-render.postman_environment.json \
           -r cli,htmlextra \
@@ -45,12 +62,17 @@ jobs:
       - name: Start frontend
         run: |
           cd frontend
-          npm run dev -- --host 0.0.0.0 &
+          npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
         env:
           CI: true
+          VITE_API_BASE_URL: https://quickbook-testing.onrender.com
 
       - name: Wait for frontend
         run: npx wait-on http://localhost:5173 --timeout 120000
+
+      - name: Show frontend log
+        if: always()
+        run: cat frontend.log
 
       # -------------------------
       # CYPRESS TESTS
@@ -65,10 +87,18 @@ jobs:
         run: npx cypress run --browser electron
 
       # -------------------------
-      # UPLOAD REPORT
+      # UPLOAD REPORTS
       # -------------------------
       - name: Upload API report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: api-report
           path: reports/api-report.html
+
+      - name: Upload Cypress screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
