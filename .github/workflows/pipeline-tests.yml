@@ -38,3 +38,36 @@ jobs:
         run: |
           cd backend
           npm test
+
+      #Frontend
+      - name: Start Frontend Server
+        run: |
+          cd frontend
+          run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
+        env:
+          CI: true
+          VITE_API_BASE_URL: https://quickbook-testing.onrender.com
+      
+      - name: Wait On Frontend
+        run: npx wait-on http://localhost:5173 --timeout 120000
+
+      - name: show the front end log
+        if: always()
+        run: cat frontend.log
+
+      #CYPRESS 
+      - name: Install cypress
+        run: npx cypress install
+
+      - name: Verify cypress
+        run: npx cypress Verify
+
+      - name: Run cypress Tests
+        run: npx cypress run --browser electron
+
+
+
+     
+      
+        
+        
