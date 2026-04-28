@@ -1,0 +1,22 @@
+name: Pipeline Testing
+
+on: 
+  push: 
+    branches: [quick-book-lucy]
+
+  jobs: 
+    jobOne: 
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout Repo
+          uses: actions/checkout@v4
+
+        - name: Setup Node
+          uses: actions/setup-node@v4
+          with: 
+            node-version: 22
+
+        #install root dependencies
+        - name: install root deps
+          run: npm install  
