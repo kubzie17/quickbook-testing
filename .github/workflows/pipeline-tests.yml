@@ -37,10 +37,10 @@ jobs:
             npm test
 
   jobFrontend:
+    needs: jobInstallation
     runs-on: ubuntu-latest
 
     steps:
-      - needs: jobInstallation
     # starting frontend
       - name: Starting frontend
         run: |
@@ -59,12 +59,11 @@ jobs:
 
   
   jobCypress:
+    needs: jobInstallation
+    needs: jobFrontend
     runs-on: ubuntu-latest
     
     steps:
-      - needs: jobInstallation
-      - needs: jobFrontend
-
       - name: Install Cypress
         run: npx cypress install 
       
