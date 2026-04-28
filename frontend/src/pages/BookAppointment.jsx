@@ -19,7 +19,7 @@ export default function BookAppointment() {
         const response = await fetch(`${apiBaseUrl}/services`);
         const data = await response.json();
         setServices(data);
-      } catch (error) {
+      } catch (_error) {
         setMessage("Failed to load services");
       }
     }
@@ -50,7 +50,7 @@ export default function BookAppointment() {
 
       const data = await response.json();
       setMessage(data.message);
-    } catch (error) {
+    } catch (_error) {
       setMessage("Something went wrong");
     }
   }

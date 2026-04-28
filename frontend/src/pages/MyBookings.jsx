@@ -11,7 +11,7 @@ export default function MyBookings() {
       const response = await fetch(`${apiBaseUrl}/bookings`);
       const data = await response.json();
       setBookings(data);
-    } catch (error) {
+    } catch (_error) {
       setMessage("Failed to load bookings");
     }
   }
@@ -25,7 +25,7 @@ export default function MyBookings() {
       const data = await response.json();
       setMessage(data.message);
       loadBookings();
-    } catch (error) {
+    } catch (_error) {
       setMessage("Failed to delete booking");
     }
   }

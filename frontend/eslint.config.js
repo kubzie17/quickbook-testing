@@ -5,7 +5,8 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // Ignore folders that ESLint shouldn't touch
+  globalIgnores(['**/dist/**', '**/cypress/**', '**/cypress.config.js']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [
@@ -23,7 +24,12 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'no-unused-vars': ['error', {
+        varsIgnorePattern: '^[A-Z_]',
+        argsIgnorePattern: '^_',          // Allow _error, _unused, etc.
+        caughtErrorsIgnorePattern: '^_',  // Allow catch(_error) specifically
+      }],
+      'react-hooks/set-state-in-effect': 'off',  // Allow data fetching in useEffect
     },
   },
 ])

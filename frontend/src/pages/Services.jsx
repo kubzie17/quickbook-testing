@@ -12,7 +12,7 @@ export default function Services() {
         const response = await fetch(`${apiBaseUrl}/services`);
         const data = await response.json();
         setServices(data);
-      } catch (error) {
+      } catch (_error) {
         setMessage("Failed to load services");
       }
     }

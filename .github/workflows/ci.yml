@@ -95,6 +95,6 @@ jobs:
       # --reporter=verbose shows each test name and result
 
       - name: Run unit tests
-        run: npx vitest run --reporter=verbose
+        run: npx vitest run 
         working-directory: backend
 
