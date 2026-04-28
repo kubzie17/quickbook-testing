@@ -26,14 +26,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-      - run: |
-          cd backend
-          npm install
+      # - uses: actions/checkout@v4
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 22
+      #     cache: 'npm'
+      # - run: |
+      #     cd backend
+      #     npm install
       - run: |
           cd backend
           npm test
@@ -42,24 +42,24 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-      - run: npm install
-      - run: |
-          cd frontend
-          npm install
-      - name: Start frontend
+      # - uses: actions/checkout@v4
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 22
+      #     cache: 'npm'
+      # - run: npm install
+      # - run: |
+      #     cd frontend
+      #     npm install
+      # - name: Start frontend
         run: |
           cd frontend
           npm run dev -- --host 0.0.0.0 &
         env:
           CI: true
           VITE_API_BASE_URL: https://quickbook-testing.onrender.com
-      - run: npx wait-on http://localhost:5173 --timeout 120000
-      - run: npx cypress run --browser electron
+        run: npx wait-on http://localhost:5173 --timeout 120000
+        run: npx cypress run --browser electron
     branches: [pipeline_build]
 
 
