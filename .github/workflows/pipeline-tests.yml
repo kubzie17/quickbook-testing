@@ -32,7 +32,7 @@ jobs:
 
     # installing tests 
       - name: installing tests 
-          run: |
+        run: |
             cd backend
             npm test
 
