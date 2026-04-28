@@ -18,5 +18,5 @@ on:
             node-version: 22
 
         #install root dependencies
-        - name: install root deps
+        - name: Install root dependencies 
           run: npm install  
