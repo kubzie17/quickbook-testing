@@ -2,8 +2,7 @@ name: Charlottes Test Suite
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
+    branches: [charlottes-branch]
 
 jobs:
   forTheFunOfIt:
