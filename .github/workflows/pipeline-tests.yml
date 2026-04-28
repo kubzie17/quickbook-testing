@@ -47,7 +47,28 @@ jobs:
         uses: actions/setup-node@v4
         with: 
           node-version: 22
+
+    # installing root dependencies 
+      - name: install root dependencies 
+        run:  npm install  
+    # installing backend dependencies 
+      - name: install backend dependencies 
+        run: |
+          cd backend
+          npm install 
+
+      - name: install frontend dependencies 
+        run: |
+          cd frontend
+          npm install
+
     # installing tests 
+      - name: installing tests 
+        run: |
+            cd backend
+            npm test
+
+    # starting frontend
       - name: Starting frontend
         run: |
             cd frontend
@@ -75,7 +96,26 @@ jobs:
         uses: actions/setup-node@v4
         with: 
           node-version: 22
-          
+    # installing root dependencies 
+      - name: install root dependencies 
+        run:  npm install  
+    # installing backend dependencies 
+      - name: install backend dependencies 
+        run: |
+          cd backend
+          npm install 
+
+      - name: install frontend dependencies 
+        run: |
+          cd frontend
+          npm install
+
+    # installing tests 
+      - name: installing tests 
+        run: |
+            cd backend
+            npm test
+            
       - name: Starting frontend
         run: |
             cd frontend
