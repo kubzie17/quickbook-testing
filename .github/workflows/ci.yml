@@ -182,7 +182,7 @@ jobs:
         run: cat frontend.log
 
       # Install the Cypress binary (the actual browser automation engine).
-      # The npm package is just a wrapper — the binary is the real thing.
+      # The npm package is just a wrapper — the binary is the real thing....
       - name: Install Cypress binary
         run: npx cypress install
 
