@@ -44,9 +44,9 @@ jobs:
             backend/node_modules
             frontend/node_modules
 
-        jobFrontend:
-          needs: jobInstallation
-          runs-on: ubuntu-latest
+  jobFrontend:
+    needs: jobInstallation
+    runs-on: ubuntu-latest
 
     steps:
       - name: checkout repo
@@ -94,7 +94,7 @@ jobs:
         uses: actions/setup-node@v4
         with: 
           node-version: 22
-          
+
       - name: Starting frontend
         run: |
             cd frontend
