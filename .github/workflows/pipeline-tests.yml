@@ -5,7 +5,7 @@ on:
     branches: [charlottes-branch]
 
 jobs:
-  First Job installation:
+  FirstJobInstallation:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,19 +33,35 @@ jobs:
           cd frontend
           npm install
 
-  Second Job Running tests:
+  SecondJobRunningTests:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       - name: Run tests
         run: |
           cd backend
           npm test
   
-  Third Job Starting frontend:
+  ThirdJobStartingFrontend:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       - name: Start frontend
         run: |
           cd frontend
@@ -61,10 +77,17 @@ jobs:
         if: always()
         run: cat frontend.log
   
-  Forth Job Cypress:
+  FourthJobCypress:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - name: Installing cypress
         run: npx cypress install
       
