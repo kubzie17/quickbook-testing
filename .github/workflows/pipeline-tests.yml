@@ -36,13 +36,26 @@ jobs:
             cd backend
             npm test
 
-  jobFrontend:
-    needs: jobInstallation
-    runs-on: ubuntu-latest
+      - uses: actions/upload-artifact@v4
+        with:
+          name: all-deps
+          path: |
+            node_modules
+            backend/node_modules
+            frontend/node_modules
+
+        jobFrontend:
+          needs: jobInstallation
+          runs-on: ubuntu-latest
 
     steps:
       - name: checkout repo
         uses: actions/checkout@v4
+
+      - name: artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: all-deps
 
       - name: Install node 
         uses: actions/setup-node@v4
@@ -72,11 +85,26 @@ jobs:
     steps:
       - name: checkout repo
         uses: actions/checkout@v4
-
+    
+      - name: artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: all-deps
       - name: Install node 
         uses: actions/setup-node@v4
         with: 
           node-version: 22
+          
+      - name: Starting frontend
+        run: |
+            cd frontend
+            npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
+        env:
+          CI: true
+          VITE_API_BASE_URL: https://quickbook-testing.onrender.com
+
+      - name: wait for frontend 
+        run: npx wait-on http://localhost:5173 --timeout 120000
       - name: Install Cypress
         run: npx cypress install 
       
