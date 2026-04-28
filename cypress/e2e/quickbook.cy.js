@@ -33,11 +33,11 @@ describe("QuickBook E2E", () => {
       .should("contain", "Login successful");
 });
 
-it("shows an error for failed login using custom command", () => {
-  cy.login("student@example.com", "wrong");
+  it("shows an error for failed login using custom command", () => {
+    cy.login("student@example.com", "wrong");
 
-  cy.wait("@postLogin", { timeout: 20000 });
-  cy.get('[data-testid="login-message"]', { timeout: 20000 })
-    .should("contain", "Invalid email or password");
-});
+    cy.wait("@postLogin", { timeout: 20000 });
+    cy.get('[data-testid="login-message"]', { timeout: 20000 })
+      .should("contain", "Invalid email or password");
+  });
 });
