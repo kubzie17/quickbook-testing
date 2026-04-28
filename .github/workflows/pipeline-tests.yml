@@ -11,10 +11,10 @@ jobs:
 
     steps: 
       - name: checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with: 
           node-version: 22
 
@@ -45,19 +45,17 @@ jobs:
           npm test
 
       - name: wait for frontend
-        run: http://localhost:5173 --timeout 120000
-
+        run: npx wait-on http://localhost:5173 --timeout 120000
 
       - name: show the front end log
         if: always()
         run: cat frontend.log
 
-
       - name: install cypress
         run: npx cypress install
-      
+
       - name: verify cypress
-        run: npx cypres verify
+        run: npx cypress verify
 
       - name: run cypress tests
-        run: npx cypress run --broswer electron
+        run: npx cypress run --browser electron
