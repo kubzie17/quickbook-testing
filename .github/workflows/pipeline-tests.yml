@@ -24,14 +24,17 @@ jobs:
         run:  | 
           cd backend
           npm install 
-    # installing frontend dependencies 
+    
       - name: install frontend dependencies 
         run:  | 
           cd frontend
           npm install
-        # installing tests 
-          - name: installing tests 
-            run: npm test
+
+      # installing tests 
+        - name: installing tests 
+          run: |
+            cd backend
+            npm test
 
     
              
