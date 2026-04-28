@@ -57,7 +57,7 @@ jobs:
 
       #CYPRESS
       - name: Install Cypress
-        run: npx install cypress
+        run: npx cypress install
 
       - name: Verify Cypress
         run: npx cypress verify
