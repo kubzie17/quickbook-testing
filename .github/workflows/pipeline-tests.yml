@@ -20,3 +20,15 @@ jobs:
       # install root dependencies
       - name: install root dependencies
         run: npm install
+
+      # install backend dependencies
+      - name: install backend dependencies
+        run: |
+          cd backend
+          npm install
+      
+      # install frontend dependencies
+      - name: install frontend dependencies
+        run: |
+          cd frontend
+          npm install
