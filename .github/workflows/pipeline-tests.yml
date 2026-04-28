@@ -71,6 +71,9 @@ jobs:
           cd frontend
           npm install
 
+      - name: Install Root Dependencies
+        run: npm install
+
       - name: Start Frontend Server
         run: |
           cd frontend
@@ -81,7 +84,7 @@ jobs:
           VITE_API_BASE_URL: https://quickbook-testing.onrender.com
 
       - name: Wait On Frontend
-        run: npx wait-on http://localhost:5173 --timeout 120000
+        run: npx wait-on http-get://localhost:5173 --timeout 120000
 
       - name: Show Frontend Log
         if: always()
@@ -99,6 +102,14 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install Root Dependencies
+        run: npm install
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm install
+
       - name: Start Frontend Server
         run: |
           cd frontend
@@ -108,7 +119,7 @@ jobs:
           VITE_API_BASE_URL: https://quickbook-testing.onrender.com
 
       - name: Wait On Frontend
-        run: npx wait-on http://localhost:5173 --timeout 120000
+        run: npx wait-on http-get://localhost:5173 --timeout 120000
 
       - name: Install Cypress
         run: npx cypress install
