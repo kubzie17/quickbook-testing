@@ -5,7 +5,7 @@ on:
     branches: [tyreece]
 
 jobs:
-  build:
+  jobOne:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,3 +31,8 @@ jobs:
         run: |
           cd frontend
           npm install
+
+      - name: unit testing
+        run: |
+          cd backend 
+          npm test    
