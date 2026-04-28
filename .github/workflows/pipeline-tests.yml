@@ -1,0 +1,23 @@
+name: phoenix 
+
+on: 
+  push: 
+    branches: [tyreece]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout branch
+        uses: actions/checkout@v4
+
+      - name: node -i
+        uses: actions/setup-node@v4
+        with: 
+            node-version: 22
+
+      # dependencies 
+      
+      - name: install root dependencies
+        run: npm i
