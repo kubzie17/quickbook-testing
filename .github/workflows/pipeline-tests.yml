@@ -21,12 +21,12 @@ jobs:
         run:  npm install  
     # installing backend dependencies 
       - name: install backend dependencies 
-        run:  |
+        run: |
           cd backend
           npm install 
 
       - name: install frontend dependencies 
-        run:  |
+        run: |
           cd frontend
           npm install
 
@@ -35,6 +35,18 @@ jobs:
         run: |
             cd backend
             npm test
+
+  jobTwo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install node 
+        uses: actions/setup-node@v4
+        with: 
+          node-version: 22
     # installing tests 
       - name: Starting frontend
         run: |
@@ -51,11 +63,41 @@ jobs:
         if: always()
         run: cat frontend.log
 
-      - name: Install and Run Cypress
+  
+  jobThree:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install node 
+        uses: actions/setup-node@v4
+        with: 
+          node-version: 22
+          
+      - name: Starting frontend
         run: |
-          npx cypress install 
-          npx cypress verify
-          npx cypress run --browser electron
+            cd frontend
+            npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
+        env:
+          CI: true
+          VITE_API_BASE_URL: https://quickbook-testing.onrender.com
+
+      - name: wait for frontend 
+        run: npx wait-on http://localhost:5173 --timeout 120000
+
+      - name: show the frontend log 
+        if: always()
+        run: cat frontend.log
+      - name: Install Cypress
+        run: npx cypress install 
+      
+      - name: Verify Cypress 
+        run: npx cypress verify
+
+      - name: Run Cypress
+        run: npx cypress run --browser electron
         
 
 
