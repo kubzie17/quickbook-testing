@@ -2,8 +2,7 @@ name: Full Test Suite
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
+    branches: [tyreece]
 
 jobs:
   forTheFunOfIt:
