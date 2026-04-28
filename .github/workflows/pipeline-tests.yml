@@ -59,8 +59,7 @@ jobs:
 
   
   jobCypress:
-    needs: jobInstallation
-    needs: jobFrontend
+    needs: [jobInstallation, jobFrontend]
     runs-on: ubuntu-latest
     
     steps:
