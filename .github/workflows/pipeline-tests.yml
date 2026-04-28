@@ -43,3 +43,21 @@ jobs:
         run: |
           cd backend
           npm test
+
+      - name: wait for frontend
+        run: http://localhost:5173 --timeout 120000
+
+
+      - name: show the front end log
+        if: always()
+        run: cat frontend.log
+
+
+      - name: install cypress
+        run: npx cypress install
+      
+      - name: verify cypress
+        run: npx cypres verify
+
+      - name: run cypress tests
+        run: npx cypress run --broswer electron
