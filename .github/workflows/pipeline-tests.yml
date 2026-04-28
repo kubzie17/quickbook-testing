@@ -17,22 +17,51 @@ jobs:
         with: 
             node-version: 22
 
-      # dependencies 
-      
-      - name: install root dependencies
+
+      # dependencies
+
+      - name: install root packages
         run: npm i
 
-      - name: install backend dependencies
+      - name: install backend packages
         run: |
           cd backend
-          npm install
-        
-      - name: install frontend dependencies
+          npm i
+
+      - name: install frontend packages
         run: |
           cd frontend
-          npm install
+          npm i
 
-      - name: unit testing
+      - name: run backend tests
         run: |
-          cd backend 
-          npm test    
+          cd backend
+          npm test
+
+      - name: start frontend server
+        run: |
+          cd frontend
+          npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
+        env:
+          CI: true
+          VITE_API_BASE_URL: https://quickbook-testing.onrender.com
+
+      - name: wait for frontend
+        run: npx wait-on http://localhost:5173 --timeout 120000
+
+      - name: display frontend server logs
+        if: always()
+        run: cat frontend.log
+
+
+
+      - name: install cypress
+        run: npx cypress install
+
+      - name: verify cypress
+        run: npx cypress verify
+
+      - name: run cypress tests
+        run: npx cypress run --browser electron
+
+      
