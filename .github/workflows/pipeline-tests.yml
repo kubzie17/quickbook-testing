@@ -54,7 +54,10 @@ jobs:
         run: cat frontend.log
 
       - name: Installing cypress
-        run: npx install cypress
+        run: npx cypress install
+      
+      - name: Verfying cypress install
+        run: npx cypress verify
 
       - name: Run cypress tests 
         run: npx cypress run --browser electron
