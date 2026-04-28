@@ -104,9 +104,9 @@ jobs:
         with: 
           node-version: 22
 
-       - name: install root dependencies 
+      - name: install root dependencies 
         run:  npm install  
-        
+
       - name: installation for frontend
         run: |
           cd frontend
