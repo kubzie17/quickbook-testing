@@ -63,7 +63,9 @@ jobs:
           node-version: 22
     
       - name: Starting frontend
-        run: npm install 
+        run: |
+          cd frontend
+          npm install 
 
     # starting frontend
       - name: Starting frontend
@@ -99,7 +101,9 @@ jobs:
         with: 
           node-version: 22
       - name: installation for frontend
-        run: npm install
+        run: |
+          cd frontend
+          npm install
 
       - name: Starting frontend
         run: |
