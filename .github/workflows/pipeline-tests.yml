@@ -61,8 +61,11 @@ jobs:
         uses: actions/setup-node@v4
         with: 
           node-version: 22
+
+      - name: install root dependencies 
+        run:  npm install  
     
-      - name: Starting frontend
+      - name: install frontend
         run: |
           cd frontend
           npm install 
@@ -100,6 +103,10 @@ jobs:
         uses: actions/setup-node@v4
         with: 
           node-version: 22
+
+       - name: install root dependencies 
+        run:  npm install  
+        
       - name: installation for frontend
         run: |
           cd frontend
