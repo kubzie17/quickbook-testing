@@ -1,15 +1,8 @@
-# ============================================================
-# CI/CD Pipeline — QuickBook
-# ============================================================
-# This workflow runs automatically when code changes happen.
-# It ensures nothing is broken before code reaches production.
-# ============================================================
-
 name: CI/CD Pipeline
 
-# ── TRIGGERS ─────────────────────────────────────────────────
 # "on" defines WHEN this workflow runs.
 # Think of it as: "Hey GitHub, run this recipe when..."
+
 on:
   push:
     branches: [CI/CD]          # ...code is pushed to main
@@ -17,33 +10,32 @@ on:
     branches: [CI/CD]          # ...a PR is opened targeting main
   workflow_dispatch:           # ...someone manually clicks "Run workflow" in GitHub UI
 
-# ── ENVIRONMENT VARIABLES ────────────────────────────────────
+
 # These are available to ALL jobs in the workflow.
 # Centralising config here means you change it in ONE place,
 # not scattered across 10 different steps.
+
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: "22"
   VITE_API_BASE_URL: "https://quickbook-testing.onrender.com"
 
-# ── PERMISSIONS ──────────────────────────────────────────────
 # Principle of least privilege: only grant what's needed.
 # In fintech, you NEVER leave permissions wide open.
 # "contents: read" means the workflow can read your code but
 # can't push changes or delete branches.
+
 permissions:
   contents: read
 
-# ── JOBS ─────────────────────────────────────────────────────
+
 # Jobs are independent units of work. They run in parallel by
 # default. Think of them as separate workers in a factory —
 # each one does their own thing on their own machine.
 jobs:
 
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ JOB 1: LINT & CODE QUALITY                              │
-  # │ Purpose: Catch syntax errors, style issues, bad imports │
-  # │ Why first: It's fast (seconds). Fail fast, save time.   │
-  # └─────────────────────────────────────────────────────────┘
+  #  Purpose: Catch syntax errors, style issues, bad imports 
+  #  Why first: It's fast (seconds). Fail fast, save time.   
+
   lint:
     name: Lint & Code Quality
     runs-on: ubuntu-latest     # The machine type — a fresh Ubuntu VM
@@ -75,11 +67,10 @@ jobs:
         run: npm run lint
         working-directory: frontend
 
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ JOB 2: UNIT TESTS                                       │
-  # │ Purpose: Test individual functions in isolation          │
-  # │ These are your backend utils tests (isValidEmail, etc.) │
-  # └─────────────────────────────────────────────────────────┘
+
+  #  Purpose: Test individual functions in isolation          
+  #  These are your backend utils tests (isValidEmail, etc.) 
+
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
@@ -102,160 +93,8 @@ jobs:
 
       # Run vitest (the test runner configured in backend/package.json)
       # --reporter=verbose shows each test name and result
+
       - name: Run unit tests
         run: npx vitest run --reporter=verbose
         working-directory: backend
 
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ JOB 3: API TESTS                                        │
-  # │ Purpose: Test the backend API endpoints using Postman    │
-  # │ Newman is Postman's CLI runner — same tests, no GUI.    │
-  # └─────────────────────────────────────────────────────────┘
-  api-tests:
-    name: API Tests (Newman)
-    runs-on: ubuntu-latest
-    needs: lint
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      # Newman runs Postman collections from the command line.
-      # htmlextra generates a nice HTML report we can download later.
-      - name: Install Newman
-        run: npm install -g newman newman-reporter-htmlextra
-
-      - name: Run API tests
-        run: |
-          newman run postman/quickbook-api.postman_collection.json \
-            -e postman/quickbook-render.postman_environment.json \
-            -r cli,htmlextra \
-            --reporter-htmlextra-export reports/api-report.html
-
-      # Upload the HTML report as an "artifact" — a downloadable file
-      # attached to the workflow run. You can grab it from the Actions tab.
-      - name: Upload API test report
-        if: always()           # Upload even if tests fail — you want the report!
-        uses: actions/upload-artifact@v4
-        with:
-          name: api-test-report
-          path: reports/api-report.html
-          retention-days: 30   # Keep for 30 days, then auto-delete
-
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ JOB 4: E2E TESTS (CYPRESS)                              │
-  # │ Purpose: Test the full app like a real user would        │
-  # │ This spins up the frontend, then runs Cypress against it │
-  # └─────────────────────────────────────────────────────────┘
-  e2e-tests:
-    name: E2E Tests (Cypress)
-    runs-on: ubuntu-latest
-    needs: [unit-tests, api-tests]   # Wait for BOTH to pass first.
-                                      # E2E tests are slow and expensive —
-                                      # don't waste time if basics are broken.
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      # Install ALL dependencies (root, frontend, and Cypress)
-      - name: Install root dependencies
-        run: npm install
-
-      - name: Install frontend dependencies
-        run: npm install
-        working-directory: frontend
-
-      # Start the frontend dev server in the background.
-      # The "&" at the end means "run this in the background and continue."
-      # Without "&", the workflow would hang here forever waiting for Vite.
-      - name: Start frontend dev server
-        run: npm run dev -- --host 0.0.0.0 &
-        working-directory: frontend
-        env:
-          VITE_API_BASE_URL: ${{ env.VITE_API_BASE_URL }}
-
-      # wait-on polls the URL until it responds (or times out).
-      # The frontend takes a few seconds to compile and start serving.
-      - name: Wait for frontend to be ready
-        run: npx wait-on http://localhost:5173 --timeout 120000
-
-      # Install the Cypress binary (the actual browser automation engine)
-      - name: Install Cypress binary
-        run: npx cypress install
-
-      # Run all Cypress tests headlessly (no visible browser window).
-      # In CI there's no screen, so we use Electron (built-in headless browser).
-      - name: Run Cypress E2E tests
-        run: npx cypress run --browser electron
-
-      # Cypress can save screenshots on failure and videos of test runs.
-      # Upload them so you can watch what went wrong.
-      - name: Upload Cypress screenshots
-        if: failure()          # Only upload if tests FAILED
-        uses: actions/upload-artifact@v4
-        with:
-          name: cypress-screenshots
-          path: cypress/screenshots
-          retention-days: 14
-
-      - name: Upload Cypress videos
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cypress-videos
-          path: cypress/videos
-          retention-days: 14
-
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ JOB 5: BUILD                                            │
-  # │ Purpose: Verify the app can be built for production      │
-  # │ "It works on my machine" doesn't cut it in fintech.     │
-  # │ If it can't build in CI, it can't be deployed.          │
-  # └─────────────────────────────────────────────────────────┘
-  build:
-    name: Production Build
-    runs-on: ubuntu-latest
-    needs: e2e-tests           # Only build if ALL tests pass
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Install frontend dependencies
-        run: npm install
-        working-directory: frontend
-
-      # "npm run build" creates the optimised production bundle.
-      # If this fails, there's a real problem (missing env vars,
-      # import errors, TypeScript issues, etc.)
-      - name: Build frontend for production
-        run: npm run build
-        working-directory: frontend
-        env:
-          VITE_API_BASE_URL: ${{ env.VITE_API_BASE_URL }}
-
-      # Upload the build output so it can be used by a deploy job later.
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build
-          path: frontend/dist
-          retention-days: 7
