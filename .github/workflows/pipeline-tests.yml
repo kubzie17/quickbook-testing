@@ -20,11 +20,15 @@ jobs:
         run: npm install
 
       - name: Install Backend Dependencies
-        run: npm install
-        working-directory: backend
+        run: |
+          cd backend
+          npm install
+        
 
       - name: Install Frontend Dependencies
-        run: npm install
+        run: |
+          cd frontend
+          npm install
         
 
   backend:
@@ -67,7 +71,7 @@ jobs:
           VITE_API_BASE_URL: https://quickbook-testing.onrender.com
 
       - name: Wait On Frontend
-        run: npx wait-on http://localhost:5173 --timeout 120000
+        run: npx wait-on http://localhost:5173 --timeout 12000
 
       - name: Show Frontend Log
         if: always()
