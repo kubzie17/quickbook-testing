@@ -32,3 +32,9 @@ jobs:
         run: | 
           cd frontend
           npm install
+
+      #run unit tests
+      - name: Run Unit Tests  
+        run: |
+          cd backend
+          npm test
