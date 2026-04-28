@@ -98,3 +98,33 @@ jobs:
         run: npx vitest run 
         working-directory: backend
 
+
+      # Start the frontend dev server in the background.
+      # The "&" at the end means "run this in the background and continue."
+      # Without "&", the workflow would hang here forever waiting for Vite.
+
+      - name: Start frontend dev server
+        run: npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
+        working-directory: frontend
+        env:
+          CI: true
+          VITE_API_BASE_URL: https://quickbook-testing.onrender.com
+
+      # wait-on polls the URL until it responds (or times out).
+      # The frontend takes a few seconds to compile and start serving.
+
+      - name: Wait for frontend to be ready
+        run: npx wait-on http://localhost:5173 --timeout 120000
+
+      - name: show the frontend logs
+        if: always()
+        run: cat frontend.log
+
+      # Install the Cypress binary (the actual browser automation engine)
+      - name: Install Cypress binary
+        run: npx cypress install
+
+      # Run all Cypress tests headlessly (no visible browser window).
+      # In CI there's no screen, so we use Electron (built-in headless browser).
+      - name: Run Cypress E2E tests
+        run: npx cypress run --browser electron
