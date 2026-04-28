@@ -51,13 +51,13 @@ jobs:
       #     cd frontend
       #     npm install
       # - name: Start frontend
-        run: |
-          cd frontend
-          npm run dev -- --host 0.0.0.0 &
-        env:
-          CI: true
-          VITE_API_BASE_URL: https://quickbook-testing.onrender.com
-        run: npx wait-on http://localhost:5173 --timeout 120000
-        run: npx cypress run --browser electron
+        - run: |
+            cd frontend
+            npm run dev -- --host 0.0.0.0 &
+          env:
+            CI: true
+            VITE_API_BASE_URL: https://quickbook-testing.onrender.com
+        - run: npx wait-on http://localhost:5173 --timeout 120000
+        - run: npx cypress run --browser electron
 
 
