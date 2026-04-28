@@ -19,11 +19,11 @@ jobs:
           node-version: 22
       
      
-      ## ROOT ##
+      #ROOT
       - name: Install root dependencies
         run: npm install
       
-      ## BACKEND ##
+      #BACKEND
       - name: Install backend dependencies
         run: |
           cd backend
@@ -34,10 +34,19 @@ jobs:
           cd backend
           npm test
      
-      ## FRONTEND ##
+      #FRONTEND 
       - name: Install frontend dependencies
         run: |
           cd frontend
           npm install
       
-    
+      - name: Start frontend server
+        run: |
+          cd frontend
+          run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
+        env: 
+          CI: true
+          VITE_API_BASE_URL: https://quickbook-testing.onrender.com
+      
+      
+
