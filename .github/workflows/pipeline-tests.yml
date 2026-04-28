@@ -43,7 +43,7 @@ jobs:
       - name: Start frontend server
         run: |
           cd frontend
-          run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
+          npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
         env: 
           CI: true
           VITE_API_BASE_URL: https://quickbook-testing.onrender.com
