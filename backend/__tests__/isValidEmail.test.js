@@ -20,4 +20,4 @@ describe("isValidEmail", () => {
     test("email without domain returns false", () => {
         expect(isValidEmail("test@")).toBe(false);
     });
-}); // cid
+});

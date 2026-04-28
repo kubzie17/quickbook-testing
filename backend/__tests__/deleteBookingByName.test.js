@@ -1,6 +1,5 @@
 import { describe, test, expect } from "vitest";
 
-// Fix: deleteBookingByName doesn't exist in utils.js
 // The available delete functions are:
 //   - deleteBookingById(bookings, bookingId) — returns { success, message, updatedBookings }
 //   - deleteBookingsByEmail(bookings, email) — returns filtered array
