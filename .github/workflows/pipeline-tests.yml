@@ -1,0 +1,22 @@
+name: Pipeline Test Suite
+
+on: 
+  push: 
+    branches: [newbranch]
+
+
+jobs: 
+  jobOne: 
+    runs-on: ubuntu-latest
+
+    steps: 
+      - name: checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install node
+        uses: actions/setup-node@4
+        with: 
+          node-version: 22
+
+      - name: install root dependencies
+        run: npm install
