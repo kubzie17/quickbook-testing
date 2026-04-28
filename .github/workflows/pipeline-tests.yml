@@ -100,8 +100,10 @@ jobs:
           node-version: 22
 
       - name: Start Frontend Server
-        run: npm run dev -- --host 0.0.0.0 &
-        working-directory: frontend
+        run: |
+          cd frontend
+          npm run dev -- --host 0.0.0.0 &
+        
         env:
           VITE_API_BASE_URL: https://quickbook-testing.onrender.com
 
