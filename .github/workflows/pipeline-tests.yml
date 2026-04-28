@@ -60,7 +60,7 @@ jobs:
         run: npx cypress install
 
       - name: Verify cypress
-        run: npx cypress Verify
+        run: npx cypress verify
 
       - name: Run cypress Tests
         run: npx cypress run --browser electron
