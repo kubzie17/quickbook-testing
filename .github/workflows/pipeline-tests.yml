@@ -36,6 +36,8 @@ jobs:
   SecondJobRunningTests:
     runs-on: ubuntu-latest
 
+    needs: FirstJobInstallation
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -45,6 +47,7 @@ jobs:
         with:
           node-version: 22
 
+
       - name: Run tests
         run: |
           cd backend
@@ -52,6 +55,8 @@ jobs:
   
   ThirdJobStartingFrontend:
     runs-on: ubuntu-latest
+
+    needs: FirstJobInstallation
 
     steps:
       - name: Checkout code
@@ -79,6 +84,8 @@ jobs:
   
   FourthJobCypress:
     runs-on: ubuntu-latest
+
+    needs: FirstJobInstallation
 
     steps:
       - name: Checkout code
