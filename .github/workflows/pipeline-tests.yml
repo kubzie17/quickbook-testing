@@ -4,19 +4,19 @@ on:
   push: 
     branches: [quick-book-lucy]
 
-  jobs: 
-    jobOne: 
-      runs-on: ubuntu-latest
+jobs: 
+  jobOne: 
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Checkout Repo
-          uses: actions/checkout@v4
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
 
-        - name: Setup Node
-          uses: actions/setup-node@v4
-          with: 
-            node-version: 22
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with: 
+          node-version: 22
 
-        #install root dependencies
-        - name: Install root dependencies 
-          run: npm install  
+      #install root dependencies
+      - name: Install root dependencies 
+        run: npm install  
