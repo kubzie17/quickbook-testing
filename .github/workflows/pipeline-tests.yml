@@ -54,3 +54,13 @@ jobs:
       - name: Show the frontend log
         if: always()
         run: cat frontend.log
+
+      #CYPRESS
+      - name: Install Cypress
+        run: npx install cypress
+
+      - name: Verify Cypress
+        run: npx cypress verify
+      
+      - name: Run Cypress tests
+        run: npx cypress run --browser electron
