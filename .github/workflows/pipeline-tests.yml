@@ -21,3 +21,13 @@ jobs:
       
       - name: install root dependencies
         run: npm i
+
+      - name: install backend dependencies
+        run: |
+          cd backend
+          npm install
+        
+      - name: install frontend dependencies
+        run: |
+          cd frontend
+          npm install
