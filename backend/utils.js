@@ -43,14 +43,14 @@ function isValidService(service, services) {
   return services.some((item) => item.name === service);
 }
 
-function isValidServiceDuration(service, services) {
-  const found = services.find((item) => item.name === service);
+function isValidServiceDuration(services, serviceName, duration) {
+  if (!Array.isArray(services)) return false;
 
-  if (!found) {
-    return false;
-  }
+  const found = services.find((item) => item.name === serviceName);
 
-  return found.duration > 0;
+  if (!found) return false;
+
+  return found.duration === duration;
 }
 
 function validateLogin(email, password) {

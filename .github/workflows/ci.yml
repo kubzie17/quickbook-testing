@@ -49,9 +49,9 @@ jobs:
     runs-on: ubuntu-latest     # The machine type — a fresh Ubuntu VM
 
     steps:
-      # Step 1: Get the repo onto the machine
+      # Step 1: Get the code onto the machine
       # Without this, the VM is empty — it doesn't have your code.
-      - name: Checkout repo
+      - name: Checkout repo 
         uses: actions/checkout@v4
 
       # Step 2: Install Node.js
