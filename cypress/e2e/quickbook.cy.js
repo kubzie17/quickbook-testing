@@ -26,7 +26,7 @@ describe("QuickBook E2E", () => {
   });
 
   it("logs in successfully using custom command", () => {
-    cy.login("student@example.com", "Password132");
+    cy.login("student@example.com", "Password123");
 
     cy.wait("@postLogin", { timeout: 20000 });
     cy.get('[data-testid="login-message"]', { timeout: 20000 })
