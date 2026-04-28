@@ -38,6 +38,6 @@ it("shows an error for failed login using custom command", () => {
 
   cy.wait("@postLogin", { timeout: 20000 });
   cy.get('[data-testid="login-message"]', { timeout: 20000 })
-    .should("contain", "doesnt work");
+    .should("contain", "Invalid email or password");
 });
 });
