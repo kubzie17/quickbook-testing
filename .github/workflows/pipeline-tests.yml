@@ -48,5 +48,9 @@ jobs:
           CI: true
           VITE_API_BASE_URL: https://quickbook-testing.onrender.com
       
-      
+      - name: Wait for frontend
+        run: npx wait-on http://localhost:5173 --timeout 120000
 
+      - name: Show the frontend log
+        if: always()
+        run: cat frontend.log
