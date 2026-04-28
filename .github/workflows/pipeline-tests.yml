@@ -81,7 +81,7 @@ jobs:
           VITE_API_BASE_URL: https://quickbook-testing.onrender.com
 
       - name: Wait On Frontend
-        run: npx wait-on http://localhost:5173 --timeout 12000
+        run: npx wait-on http://localhost:5173 --timeout 120000
 
       - name: Show Frontend Log
         if: always()
