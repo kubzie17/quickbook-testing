@@ -5,7 +5,7 @@ on:
     branches: [charlottes-branch]
 
 jobs:
-  First Job - installation:
+  First Job installation:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,7 +33,7 @@ jobs:
           cd frontend
           npm install
 
-  Second Job - running tests:
+  Second Job Running tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -42,7 +42,7 @@ jobs:
           cd backend
           npm test
   
-  Third Job - starting frontend:
+  Third Job Starting frontend:
     runs-on: ubuntu-latest
 
     steps:
@@ -61,7 +61,7 @@ jobs:
         if: always()
         run: cat frontend.log
   
-  Forth Job - cypress:
+  Forth Job Cypress:
     runs-on: ubuntu-latest
 
     steps:
