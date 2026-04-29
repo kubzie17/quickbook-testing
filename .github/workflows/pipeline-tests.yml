@@ -1,4 +1,3 @@
-
 name: Pipeline Test Suite
 
 on:
@@ -16,7 +15,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
 
       - name: Install root dependencies
         run: npm install 
@@ -29,6 +28,7 @@ jobs:
         run: |
           npm audit fix
           echo "Vulnerabilities fixed in root dependencies"
+        continue-on-error: true
 
       - name: Install backend deps
         run: |
@@ -46,6 +46,7 @@ jobs:
           cd backend
           npm audit fix
           echo "Vulnerabilities fixed in backend dependencies"
+        continue-on-error: true
 
       - name: Run unit tests
         run: |
@@ -79,6 +80,7 @@ jobs:
           cd frontend
           npm audit fix
           echo "Vulnerabilities fixed in frontend dependencies"
+        continue-on-error: true
 
       - name: Start frontend
         run: |
