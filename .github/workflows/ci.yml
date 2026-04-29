@@ -86,7 +86,7 @@ jobs:
       # "if: always()" ensures the report is uploaded even if the step above failed.
       - name: Upload ESLint report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: eslint-report
           path: frontend/eslint-report.json
