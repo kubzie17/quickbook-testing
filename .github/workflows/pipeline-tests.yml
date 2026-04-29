@@ -17,6 +17,7 @@ jobs:
         with:
           node-version: 22
 
+#Root Install
       - name: Install root dependencies
         run: npm install 
       
@@ -29,6 +30,7 @@ jobs:
           npm audit fix
         continue-on-error: true
 
+#Backend Install
       - name: Install backend deps
         run: |
           cd backend
@@ -46,32 +48,11 @@ jobs:
           npm audit fix
         continue-on-error: true
 
-      - name: Run unit tests
-        run: |
-          cd backend
-          npm test
-
-      - name: Install Newman
-        run: npm install -g newman newman-reporter-htmlextra
-
-      - name: Run API tests
-        run: |
-          mkdir -p reports
-          newman run postman/quickbook-api.postman_collection.json \
-          -e postman/quickbook-render.postman_environment.json \
-          -r cli,htmlextra \
-          --reporter-htmlextra-export reports/api-report.html
-
+#Frontend Install
       - name: Install frontend deps
         run: |
           cd frontend
           npm install
-      
-      - name: Run ESLint
-        run: |
-          cd frontend
-          npx eslint || echo "ESLint found issues"
-        continue-on-error: true
       
       - name: Check for vulnerabilities in frontend
         run: |
@@ -85,6 +66,41 @@ jobs:
           npm audit fix
         continue-on-error: true
 
+#Frontend Lint Tests
+      - name: Run ESLint
+        run: |
+          cd frontend
+          npx eslint . -f json -o eslint-report.json || true
+
+          errors=$(cat eslint-report.json | jq '[.[].errorCount] | add]')
+          echo "Total ESLint errors: $errors"
+
+          if [ "$errors" -gt 10 ]; then
+            echo "ESLint error count ($errors) exceed threshold of 10. Failing the build."
+            exit -1
+          else
+            echo "ESLint errors are within acceptable limits: ($errors) <= 10"
+          fi
+
+#Backend (Unit) Tests
+      - name: Run unit tests
+        run: |
+          cd backend
+          npm test
+
+#API Tests
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Run API tests
+        run: |
+          mkdir -p reports
+          newman run postman/quickbook-api.postman_collection.json \
+          -e postman/quickbook-render.postman_environment.json \
+          -r cli,htmlextra \
+          --reporter-htmlextra-export reports/api-report.html
+
+#Frontend (E2E) Tests
       - name: Start frontend
         run: |
           touch frontend.log
