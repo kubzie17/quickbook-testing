@@ -17,8 +17,6 @@ on:
 env:
   NODE_VERSION: "22"
   VITE_API_BASE_URL: "https://quickbook-testing.onrender.com"
-  # upload-artifact@v5 still uses Node 20 internally — this silences the warning
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 # ── PERMISSIONS ──────────────────────────────────────────────
 # Principle of least privilege: only grant what's needed.
@@ -88,7 +86,7 @@ jobs:
       # "if: always()" ensures the report is uploaded even if the step above failed.
       - name: Upload ESLint report
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: eslint-report
           path: frontend/eslint-report.json
