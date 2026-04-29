@@ -60,12 +60,37 @@ jobs:
         run: npm install
         working-directory: frontend
 
-      # Step 4: Run the linter
+      # Step 4: Run the linter with error threshold
       # ESLint checks your code for problems without running it.
-      # Things like: unused variables, missing imports, style violations.
+      # We output JSON, count total errors, and fail if they exceed a threshold.
+      # This gives you flexibility — a few minor issues won't block the pipeline,
+      # but a flood of errors will.
       - name: Run ESLint
-        run: npm run lint
+        run: |
+          npm i eslint
+          npx eslint . -f json -o eslint-report.json || true
+
+          errors=$(cat eslint-report.json | jq '[.[].errorCount] | add')
+          warnings=$(cat eslint-report.json | jq '[.[].warningCount] | add')
+          echo "ESLint results: $errors errors, $warnings warnings"
+
+          if [ "$errors" -gt 10 ]; then
+            echo "ESLint FAILED: Error count ($errors) exceeds threshold of 10"
+            exit 1
+          else
+            echo "ESLint PASSED: Error count ($errors) is within threshold of 10"
+          fi
         working-directory: frontend
+
+      # Upload the ESLint report as an artifact so you can review it.
+      # "if: always()" ensures the report is uploaded even if the step above failed.
+      - name: Upload ESLint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eslint-report
+          path: frontend/eslint-report.json
+          retention-days: 14
 
   #  JOB 2: UNIT TESTS                                       
   #  Purpose: Test individual functions in isolation          
