@@ -57,7 +57,7 @@ jobs:
       
       - name: Check for vulnerabilities in frontend
         run: |
-          cd backend
+          cd frontend
           npm audit --audit-level=moderate
     
 
