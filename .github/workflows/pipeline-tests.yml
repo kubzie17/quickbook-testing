@@ -56,13 +56,11 @@ jobs:
           VITE_API_BASE_URL: https://quickbook-testing.onrender.com
       - run: npx wait-on http://localhost:5173 --timeout 120000
       - run: npx cypress run --browser electron
-      # INTENTIONAL BUG:
-      # The wait-on step is missing.
-      # Cypress may run before the frontend is ready.
+      
 
       - name: Show frontend log
         if: always()
-        run: cat frontend.log
+        run: cat frontend.log || echo "No frontend log found"
 
       - name: Install Cypress binary
         run: npx cypress install
