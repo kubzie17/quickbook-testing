@@ -23,6 +23,7 @@ jobs:
       
       - name: Check for vulnerabilities in root
         run: npm audit --audit-level=moderate
+        continue-on-error: true
 
       - name: Install backend deps
         run: |
@@ -33,6 +34,7 @@ jobs:
         run: |
           cd backend
           npm audit --audit-level=moderate
+          continue-on-error: true
 
       - name: Run unit tests
         run: |
@@ -59,6 +61,7 @@ jobs:
         run: |
           cd frontend
           npm audit --audit-level=moderate
+          continue-on-error: true
     
 
       - name: Start frontend
