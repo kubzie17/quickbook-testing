@@ -2,7 +2,7 @@
 
   on:
     push:
-      branches: [ main ]
+      branches: [ quick-book-lucy ]
     pull_request:
 
   jobs:
