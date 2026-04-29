@@ -27,7 +27,6 @@ jobs:
       - name: Update root dependencies
         run: |
           npm audit fix
-          echo "Vulnerabilities fixed in root dependencies"
         continue-on-error: true
 
       - name: Install backend deps
@@ -45,7 +44,6 @@ jobs:
         run: |
           cd backend
           npm audit fix
-          echo "Vulnerabilities fixed in backend dependencies"
         continue-on-error: true
 
       - name: Run unit tests
@@ -69,6 +67,12 @@ jobs:
           cd frontend
           npm install
       
+      - name: Run ESLint
+        run: |
+          cd frontend
+          npx eslint || echo "ESLint found issues"
+        continue-on-error: true
+      
       - name: Check for vulnerabilities in frontend
         run: |
           cd frontend
@@ -79,7 +83,6 @@ jobs:
         run: |
           cd frontend
           npm audit fix
-          echo "Vulnerabilities fixed in frontend dependencies"
         continue-on-error: true
 
       - name: Start frontend
@@ -120,3 +123,4 @@ jobs:
         with:
           name: cypress-screenshots
           path: cypress/screenshots
+      
