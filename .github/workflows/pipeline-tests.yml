@@ -37,9 +37,9 @@ jobs:
         run: |
           mkdir -p reports
           newman run postman/quickbook-api.postman_collection.json \
-            -e postman/quickbook-render.postman_environment.json \
-            -r cli,htmlextra \
-            --reporter-htmlextra-export reports/api-report.html
+          -e postman/quickbook-render.postman_environment.json \
+          -r cli,htmlextra \
+          --reporter-htmlextra-export reports/api-report.html
 
       - name: Install frontend deps
         run: |
@@ -52,11 +52,13 @@ jobs:
           npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
         env:
           CI: true
-          VITE_API_BASE_URL: https://quickbook-testing.onrender.com
+          # INTENTIONAL BUG:
+          # This API URL is wrong.
+          # The frontend will run, but API requests may fail.
+          VITE_API_BASE_URL: https://wrong-api-url.example.com
 
-      # INTENTIONAL BUG:
-      # The wait-on step is missing.
-      # Cypress may run before the frontend is ready.
+      - name: Wait for frontend
+        run: npx wait-on http://localhost:5173 --timeout 120000
 
       - name: Show frontend log
         if: always()
