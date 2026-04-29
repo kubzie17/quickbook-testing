@@ -1,0 +1,4 @@
+echo "Running unit tests beforw commit"
+
+cd backend
+npm test
