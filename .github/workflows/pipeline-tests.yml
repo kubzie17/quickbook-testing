@@ -31,10 +31,10 @@ jobs:
           npm i eslint
           npx eslint . -f json -o eslint-report.json || true
 
-          errors =$(cat eslint-report.json | jq '[.[].errorCount ] | add')
+          errors=$(cat eslint-report.json | jq '[.[].errorCount ] | add')
           echo "Total eslint error: $errors"
 
-          if [ "$errors" -gt 10 ]; then
+          if [ "$errors" -ge 10 ]; then
             echo "eslint failed error count ($errors) exceeds threshold of 10"
             exit 1
           else
