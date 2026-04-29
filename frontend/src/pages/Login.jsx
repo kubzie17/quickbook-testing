@@ -32,7 +32,7 @@ export default function Login() {
 
       const data = await response.json();
       setMessage(data.message);
-    } catch (error) {
+    } catch {
       setMessage("Something went wrong");
     }
   }
