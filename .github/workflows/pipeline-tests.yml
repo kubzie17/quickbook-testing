@@ -36,6 +36,12 @@ jobs:
           cd backend
           npm test
 
+      - name: run eslint
+        run: |
+          cd frontend
+          npm i eslint
+          npx eslint .
+
       # -------------------------
       # API TESTS (NEWMAN)
       # -------------------------
