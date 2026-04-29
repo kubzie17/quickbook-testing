@@ -1,3 +1,9 @@
+name: Pipeline Testing
+
+on:
+  push:
+    branches: [newbranch]
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -31,9 +37,9 @@ jobs:
         run: |
           mkdir -p reports
           newman run postman/quickbook-api.postman_collection.json \
-          -e postman/quickbook-render.postman_environment.json \
-          -r cli,htmlextra \
-          --reporter-htmlextra-export reports/api-report.html
+            -e postman/quickbook-render.postman_environment.json \
+            -r cli,htmlextra \
+            --reporter-htmlextra-export reports/api-report.html
 
       - name: Install frontend deps
         run: |
