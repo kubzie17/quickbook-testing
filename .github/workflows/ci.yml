@@ -163,12 +163,12 @@ jobs:
       # We also create a .env file to make sure Vite picks up the API URL.
       - name: Start frontend dev server
         run: |
-          echo "VITE_API_BASE_URL=https://quickbook-testing.onrender.com" > .env
+          echo "VITE_API_BASE_URL=https://wrong-url-on-purpose.com" > .env
           npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
         working-directory: frontend
         env:
           CI: true
-          VITE_API_BASE_URL: https://quickbook-testing.onrender.com
+          VITE_API_BASE_URL: https://wrong-url-on-purpose.com
 
       # wait-on polls the URL until it responds (or times out).
       # The frontend takes a few seconds to compile and start serving.
