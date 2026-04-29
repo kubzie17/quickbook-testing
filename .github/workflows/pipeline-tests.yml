@@ -50,17 +50,17 @@ jobs:
       - name: Start frontend
         run: |
           cd frontend
-          npm run dev -- --host 0.0.0.0 &
+          npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
         env:
           CI: true
-          VITE_API_BASE_URL: https://quickbook-testing.onrender.com
-      - run: npx wait-on http://localhost:5173 --timeout 120000
-      - run: npx cypress run --browser electron
-      
+          VITE_API_BASE_URL: https://wrong-api-url.example.com
+
+      - name: Wait for frontend
+        run: npx wait-on http://localhost:5173 --timeout 120000
 
       - name: Show frontend log
         if: always()
-        run: cat frontend.log || echo "No frontend log found"
+        run: cat frontend.log
 
       - name: Install Cypress binary
         run: npx cypress install
