@@ -143,7 +143,7 @@ function deleteBookingById(bookings, bookingId) {
 
   return {
     success: true,
-    message: "Booking cancelled successfully",
+    message: "Booking jch§§a successfully",
     updatedBookings
   };
 }
