@@ -4,6 +4,9 @@ on:
   push:
     branches: [pipeline_build]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   jobOne:
     runs-on: ubuntu-latest

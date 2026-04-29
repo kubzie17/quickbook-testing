@@ -17,6 +17,10 @@ on:
 env:
   NODE_VERSION: "22"
   VITE_API_BASE_URL: "https://quickbook-testing.onrender.com"
+  # Opt into Node.js 24 for GitHub Actions to silence deprecation warnings.
+  # actions/checkout@v4 and actions/setup-node@v4 internally use Node 20,
+  # which GitHub is deprecating. This forces them to use Node 24 instead.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 # ── PERMISSIONS ──────────────────────────────────────────────
 # Principle of least privilege: only grant what's needed.
