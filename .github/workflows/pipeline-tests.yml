@@ -20,9 +20,15 @@ jobs:
       - name: install root dependencies
         run: npm install
 
-      # intentional bug:
-      # backend unit tests are missing from this pipeline.
-      # the pipeline can pass even if the unit tests are broken.
+      - name: install backend deps
+        run: |
+          cd backend
+          npm install
+
+      - name: run unit tests
+        run: |
+          cd backend
+          npm test
 
       - name: install newman
         run: npm install -g newman newman-reporter-htmlextra
