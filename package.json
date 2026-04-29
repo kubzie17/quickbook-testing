@@ -7,7 +7,8 @@
     "test:api": "newman run postman/quickbook-api.postman_collection.json -e postman/quickbook-render.postman_environment.json",
     "test:api:report": "newman run postman/quickbook-api.postman_collection.json -e postman/quickbook-render.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export reports/quickbook-api-report.html",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -22,9 +23,11 @@
   },
   "homepage": "https://github.com/kubzie17/quickbook-testing#readme",
   "devDependencies": {
-    "cypress": "^15.13.1"
+    "cypress": "^15.13.1",
+    "husky": "^9.1.7"
   },
   "dependencies": {
+    "eslint": "^10.2.1",
     "wait-on": "^9.0.5"
   }
 }

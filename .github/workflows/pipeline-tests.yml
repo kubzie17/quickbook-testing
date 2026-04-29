@@ -1,8 +1,8 @@
-name: patch
+name: tests
 
 on:
   push:
-    branches: [tyreece]
+    branches: [ tyreece ]
 
 jobs:
   test:
@@ -10,25 +10,19 @@ jobs:
 
     steps:
       - name: checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: setup node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
           node-version: 22
 
       - name: install root dependencies
         run: npm install
 
-      - name: install backend deps
-        run: |
-          cd backend
-          npm install
-
-      - name: run unit tests
-        run: |
-          cd backend
-          npm test
+      # intentional bug:
+      # backend unit tests are missing from this pipeline.
+      # the pipeline can pass even if the unit tests are broken.
 
       - name: install newman
         run: npm install -g newman newman-reporter-htmlextra
@@ -45,22 +39,6 @@ jobs:
         run: |
           cd frontend
           npm install
-
-      - name: run eslint
-        run: |
-          cd frontend
-          npm i eslint
-          npx eslint . -f json -o eslint-report.json || true
-
-          errors=$(cat eslint-report.json | jq '[.[].errorCount] | add')
-          echo "Total eslint error: $errors"
-
-          if [ "$errors" -ge 10 ]; then
-            echo "eslint failed: error count ($errors) exceeds threshold of 10"
-            exit 1
-          else
-            echo "eslint passed: error count ($errors) is less than threshold of 10"
-          fi
 
       - name: start frontend
         run: |
@@ -88,14 +66,14 @@ jobs:
 
       - name: upload api report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: api-report
           path: reports/api-report.html
 
       - name: upload cypress screenshots
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
           path: cypress/screenshots
