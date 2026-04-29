@@ -1,48 +1,39 @@
-name: Full Test Suite
+name: nova
 
 on:
   push:
     branches: [tyreece]
 
 jobs:
-  forTheFunOfIt:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: setup node
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      # -------------------------
-      # ROOT DEPENDENCIES
-      # -------------------------
-      - name: Install root dependencies
+      - name: install root dependencies
         run: npm install
 
-      # -------------------------
-      # UNIT TESTS (JEST)
-      # -------------------------
-      - name: Install backend deps
+      - name: install backend deps
         run: |
           cd backend
           npm install
 
-      - name: Run unit tests
+      - name: run unit tests
         run: |
           cd backend
           npm test
 
-      # -------------------------
-      # API TESTS (NEWMAN)
-      # -------------------------
-      - name: Install Newman
+      - name: install newman
         run: npm install -g newman newman-reporter-htmlextra
 
-      - name: Run API tests
+      - name: run api tests
         run: |
           mkdir -p reports
           newman run postman/quickbook-api.postman_collection.json \
@@ -50,15 +41,12 @@ jobs:
           -r cli,htmlextra \
           --reporter-htmlextra-export reports/api-report.html
 
-      # -------------------------
-      # FRONTEND (VITE)
-      # -------------------------
-      - name: Install frontend deps
+      - name: install frontend deps
         run: |
           cd frontend
           npm install
 
-      - name: Start frontend
+      - name: start frontend
         run: |
           cd frontend
           npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
@@ -66,41 +54,33 @@ jobs:
           CI: true
           VITE_API_BASE_URL: https://quickbook-testing.onrender.com
 
-      - name: Wait for frontend
-        run: npx wait-on http://localhost:5173 --timeout 120000
+      # INTENTIONAL BUG:
+      # The wait-on step is missing.
+      # Cypress may run before the frontend is ready.
 
-      - name: Show frontend log
+      - name: show frontend log
         if: always()
         run: cat frontend.log
 
-      # -------------------------
-      # CYPRESS TESTS
-      # -------------------------
-      - name: Install Cypress binary
+      - name: install cypress binary
         run: npx cypress install
 
-      - name: Verify Cypress
+      - name: verify cypress
         run: npx cypress verify
 
-      - name: Run Cypress tests
+      - name: run cypress tests
         run: npx cypress run --browser electron
 
-      # -------------------------
-      # UPLOAD REPORTS
-      # -------------------------
-      - name: Upload API report
+      - name: upload api report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: api-report
           path: reports/api-report.html
 
-      - name: Upload Cypress screenshots
+      - name: upload cypress screenshots
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
           path: cypress/screenshots
-
-
-          #random change 
