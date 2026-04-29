@@ -1,132 +1,80 @@
-name: Pipeline Test Suite
-
-on: 
-  push: 
-    branches: [newbranch]
-
-
-jobs: 
-  setup: 
+jobs:
+  test:
     runs-on: ubuntu-latest
 
-    steps: 
-      - name: checkout repo
-        uses: actions/checkout@v5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Install node
-        uses: actions/setup-node@v5
-        with: 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
           node-version: 22
 
-      - name: install root dependencies
+      - name: Install root dependencies
         run: npm install
 
-      - name: install backend dependencies
+      - name: Install backend deps
         run: |
           cd backend
           npm install
 
-      - name: install frontend dependencies
-        run: |
-          cd frontend
-          npm install
-
-  frontend-installations: 
-    runs-on: ubuntu-latest
-    needs: [setup]
-
-    steps: 
-      - name: checkout repo
-        uses: actions/checkout@v5
-
-      - name: Install node
-        uses: actions/setup-node@v5
-        with: 
-          node-version: 22
-
-      - name: install root dependencies
-        run: npm install
-
-      - name: install frontend dependencies
-        run: |
-          cd frontend
-          npm install
-
-      - name: run frontend
-        run: |
-          cd frontend
-          npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
-        env: 
-          CI: true
-          VITE_API_BASE_URL: https://quickbook-testing.onrender.com
-
-      - name: wait for frontend
-        run: npx wait-on http://localhost:5173 --timeout 120000
-
-      - name: show the front end log
-        if: always()
-        run: cat frontend.log
-
-  backend-tests: 
-    runs-on: ubuntu-latest
-    needs: [setup]
-
-    steps: 
-      - name: checkout repo
-        uses: actions/checkout@v5
-
-      - name: Install node
-        uses: actions/setup-node@v5
-        with: 
-          node-version: 22
-
-      - name: install backend dependencies
-        run: |
-          cd backend
-          npm install
-
-      - name: run tests
+      - name: Run unit tests
         run: |
           cd backend
           npm test
 
-  cypress: 
-    runs-on: ubuntu-latest
-    needs: [frontend-installations, backend-tests]
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
 
-    steps: 
-      - name: checkout repo
-        uses: actions/checkout@v5
+      - name: Run API tests
+        run: |
+          mkdir -p reports
+          newman run postman/quickbook-api.postman_collection.json \
+          -e postman/quickbook-render.postman_environment.json \
+          -r cli,htmlextra \
+          --reporter-htmlextra-export reports/api-report.html
 
-      - name: Install node
-        uses: actions/setup-node@v5
-        with: 
-          node-version: 22
-
-      - name: install root dependencies
-        run: npm install
-
-      - name: install frontend dependencies
+      - name: Install frontend deps
         run: |
           cd frontend
           npm install
 
-      - name: run frontend
+      - name: Start frontend
         run: |
           cd frontend
           npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
-        env: 
+        env:
           CI: true
           VITE_API_BASE_URL: https://quickbook-testing.onrender.com
 
-      - name: wait for frontend
-        run: npx wait-on http://localhost:5173 --timeout 120000
+      # INTENTIONAL BUG:
+      # The wait-on step is missing.
+      # Cypress may run before the frontend is ready.
 
-      - name: install cypress
+      - name: Show frontend log
+        if: always()
+        run: cat frontend.log
+
+      - name: Install Cypress binary
         run: npx cypress install
 
-      - name: verify cypress
+      - name: Verify Cypress
         run: npx cypress verify
 
-      - name: run cypress tests
+      - name: Run Cypress tests
         run: npx cypress run --browser electron
+
+      - name: Upload API report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-report
+          path: reports/api-report.html
+
+      - name: Upload Cypress screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
