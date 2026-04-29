@@ -1,4 +1,4 @@
-name: wait
+name: env
 
 on:
   push:
@@ -52,11 +52,13 @@ jobs:
           npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
         env:
           CI: true
-          VITE_API_BASE_URL: https://quickbook-testing.onrender.com
+          # intentional bug:
+          # this api url is wrong.
+          # the frontend will run, but api requests may fail.
+          VITE_API_BASE_URL: https://wrong-api-url.example.com
 
-      # intentional bug:
-      # the wait-on step is missing.
-      # cypress may run before the frontend is ready.
+      - name: wait for frontend
+        run: npx wait-on http://localhost:5173 --timeout 120000
 
       - name: show frontend log
         if: always()
