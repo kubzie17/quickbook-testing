@@ -72,7 +72,7 @@ jobs:
           cd frontend
           npx eslint . -f json -o eslint-report.json || true
 
-          errors=$(cat eslint-report.json | jq '[.[].errorCount] | add]')
+          errors=$(cat eslint-report.json | jq '[.[].errorCount] | add')
           echo "Total ESLint errors: $errors"
 
           if [ "$errors" -gt 10 ]; then
