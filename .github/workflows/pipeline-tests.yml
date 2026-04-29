@@ -17,9 +17,15 @@ jobs:
         with:
           node-version: 22
 
+      # -------------------------
+      # ROOT DEPENDENCIES
+      # -------------------------
       - name: Install root dependencies
         run: npm install
 
+      # -------------------------
+      # UNIT TESTS (JEST)
+      # -------------------------
       - name: Install backend deps
         run: |
           cd backend
@@ -30,6 +36,9 @@ jobs:
           cd backend
           npm test
 
+      # -------------------------
+      # API TESTS (NEWMAN)
+      # -------------------------
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
 
@@ -41,6 +50,9 @@ jobs:
           -r cli,htmlextra \
           --reporter-htmlextra-export reports/api-report.html
 
+      # -------------------------
+      # FRONTEND (VITE)
+      # -------------------------
       - name: Install frontend deps
         run: |
           cd frontend
@@ -54,14 +66,16 @@ jobs:
           CI: true
           VITE_API_BASE_URL: https://quickbook-testing.onrender.com
 
-      # INTENTIONAL BUG:
-      # The wait-on step is missing.
-      # Cypress may run before the frontend is ready.
+      - name: Wait for frontend
+        run: npx wait-on http://localhost:5173 --timeout 120000
 
       - name: Show frontend log
         if: always()
         run: cat frontend.log
 
+      # -------------------------
+      # CYPRESS TESTS
+      # -------------------------
       - name: Install Cypress binary
         run: npx cypress install
 
@@ -71,6 +85,9 @@ jobs:
       - name: Run Cypress tests
         run: npx cypress run --browser electron
 
+      # -------------------------
+      # UPLOAD REPORTS
+      # -------------------------
       - name: Upload API report
         if: always()
         uses: actions/upload-artifact@v4
