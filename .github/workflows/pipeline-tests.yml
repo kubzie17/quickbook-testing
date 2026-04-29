@@ -19,7 +19,11 @@ jobs:
           node-version: 22
 
       - name: Install root dependencies
-        run: npm install
+        run: npm install npm-install.log 2>&1
+      
+      - name: Show install log
+        if: always()
+        run: cat npm-install.log || echo "No npm install log found"
 
       - name: Install backend deps
         run: |
