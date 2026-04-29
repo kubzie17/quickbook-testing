@@ -30,6 +30,33 @@ jobs:
           cd backend
           npm test
 
+      # --------------------------
+      # ESLINT
+      # --------------------------
+      - name: Install frontend deps for linting
+        run: |
+          cd frontend
+          npm install
+
+      - name: Run eslint
+        run: |
+          cd frontend
+          npm i eslint
+          npx eslint . -f json -o eslint-report.json || true
+
+          errors=$(cat eslint-report.json | jq '[.[].errorCount] | add')
+          echo "Total eslint error: $errors"
+
+          if [ "$errors" -ge 10]; then
+            echo " eslint failed: error count ($errors) exceeds threshold of 10"
+            exit -1
+          else
+            echo "eslint passed: error count ($errors) is less than threshold of 10"
+          fi
+
+      # --------------------------
+      # API TESTS (NEWMAN)
+      # --------------------------
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
 
@@ -40,11 +67,6 @@ jobs:
           -e postman/quickbook-render.postman_environment.json \
           -r cli,htmlextra \
           --reporter-htmlextra-export reports/api-report.html
-
-      - name: Install frontend deps
-        run: |
-          cd frontend
-          npm install
 
       - name: Start backend
         run: |
