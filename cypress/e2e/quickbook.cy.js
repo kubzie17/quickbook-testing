@@ -1,10 +1,10 @@
 describe("QuickBook E2E", () => {
   beforeEach(() => {
-    cy.intercept("GET", "https://quickbook-testing.onrender.com/services").as("getServices");
-    cy.intercept("POST", "https://quickbook-testing.onrender.com/login").as("postLogin");
-    cy.intercept("POST", "https://quickbook-testing.onrender.com/bookings").as("postBooking");
-    cy.intercept("GET", "https://quickbook-testing.onrender.com/bookings").as("getBookings");
-    cy.intercept("DELETE", /https:\/\/quickbook-testing\.onrender\.com\/bookings\/\d+/).as("deleteBooking");
+    cy.intercept("GET", "**/services").as("getServices");
+    cy.intercept("POST", "**/login").as("postLogin");
+    cy.intercept("POST", "**/bookings").as("postBooking");
+    cy.intercept("GET", "**/bookings").as("getBookings");
+    cy.intercept("DELETE", /\/bookings\/\d+/).as("deleteBooking");
   });
 
   it("loads the home page", () => {
