@@ -55,7 +55,7 @@ jobs:
           # INTENTIONAL BUG:
           # This API URL is wrong.
           # The frontend will run, but API requests may fail.
-          VITE_API_BASE_URL: https://wrong-api-url.example.com
+          VITE_API_BASE_URL: https://quickbook-testing.onrender.com
 
       - name: Wait for frontend
         run: npx wait-on http://localhost:5173 --timeout 120000
