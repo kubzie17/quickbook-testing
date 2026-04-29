@@ -1,4 +1,4 @@
-name: Pipeline Test Suite
+name: Pipeline Testing
 
 on:
   push:
@@ -10,47 +10,47 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 22
 
       - name: Install root dependencies
-        run: npm install 
-      
-      - name: Check for vulnerabilities in root
-        run: npm audit --audit-level=moderate || echo "Vulnerabilities found in root dependencies"
-        continue-on-error: true
-      
-      - name: Update root dependencies
-        run: |
-          npm audit fix
-          echo "Vulnerabilities fixed in root dependencies"
-        continue-on-error: true
+        run: npm install
 
       - name: Install backend deps
         run: |
           cd backend
           npm install
-      - name: Check for vulnerabilities in backend
-        run: |
-          cd backend
-          npm audit --audit-level=moderate || echo "Vulnerabilities found in backend dependencies"
-        continue-on-error: true
-      
-      - name: Update backend dependencies
-        run: |
-          cd backend
-          npm audit fix
-          echo "Vulnerabilities fixed in backend dependencies"
-        continue-on-error: true
-
       - name: Run unit tests
         run: |
           cd backend
           npm test
+      # --------------------------
+      # ESLINT
+      # --------------------------
+      - name: Install frontend deps for linting
+        run: |
+          cd frontend
+          npm install
+      - name: Run eslint
+        run: |
+          cd frontend
+          npm i eslint
+          npx eslint . -f json -o eslint-report.json || true
+          errors=$(cat eslint-report.json | jq '[.[].errorCount] | add')
+          echo "Total eslint error: $errors"
+          if [ "$errors" -ge 10]; then
+            echo " eslint failed: error count ($errors) exceeds threshold of 10"
+            exit -1
+          else
+            echo "eslint passed: error count ($errors) is less than threshold of 10"
+          fi
+      # --------------------------
+      # API TESTS (NEWMAN)
+      # --------------------------
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
 
@@ -61,27 +61,12 @@ jobs:
           -e postman/quickbook-render.postman_environment.json \
           -r cli,htmlextra \
           --reporter-htmlextra-export reports/api-report.html
-      - name: Install frontend deps
+      - name: Start backend
         run: |
-          cd frontend
-          npm install
-      
-      - name: Check for vulnerabilities in frontend
-        run: |
-          cd frontend
-          npm audit --audit-level=moderate || echo "Vulnerabilities found in frontend dependencies"
-        continue-on-error: true
-    
-      - name: Update frontend dependencies
-        run: |
-          cd frontend
-          npm audit fix
-          echo "Vulnerabilities fixed in frontend dependencies"
-        continue-on-error: true
-
+          cd backend
+          node server.js &
       - name: Start frontend
         run: |
-          touch frontend.log
           cd frontend
           npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
         env:
@@ -93,7 +78,7 @@ jobs:
 
       - name: Show frontend log
         if: always()
-        run: cat frontend.log || echo "No frontend log found"
+        run: cat frontend.log
 
       - name: Install Cypress binary
         run: npx cypress install
@@ -106,14 +91,14 @@ jobs:
 
       - name: Upload API report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: api-report
           path: reports/api-report.html
 
       - name: Upload Cypress screenshots
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
           path: cypress/screenshots

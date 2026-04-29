@@ -25,6 +25,7 @@
     "cypress": "^15.13.1"
   },
   "dependencies": {
+    "eslint": "^10.2.1",
     "wait-on": "^9.0.5"
   }
 }
