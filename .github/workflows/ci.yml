@@ -17,10 +17,6 @@ on:
 env:
   NODE_VERSION: "22"
   VITE_API_BASE_URL: "https://quickbook-testing.onrender.com"
-  # Opt into Node.js 24 for GitHub Actions to silence deprecation warnings.
-  # actions/checkout@v4 and actions/setup-node@v4 internally use Node 20,
-  # which GitHub is deprecating. This forces them to use Node 24 instead.
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 # ── PERMISSIONS ──────────────────────────────────────────────
 # Principle of least privilege: only grant what's needed.
@@ -48,13 +44,13 @@ jobs:
       # Step 1: Get the code onto the machine
       # Without this, the VM is empty — it doesn't have your code.
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Step 2: Install Node.js
       # "uses" means "use a pre-built action someone already made"
       # This is like downloading Node from the website, but automated.
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"         # Cache node_modules between runs (faster)
@@ -83,10 +79,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
@@ -114,10 +110,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
@@ -144,10 +140,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
