@@ -6,8 +6,8 @@ on:
 
   pull_request:
 
-env: 
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE20=false
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: false
 
 jobs:
   test:
