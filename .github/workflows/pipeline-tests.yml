@@ -102,7 +102,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install Root Dependencies
+      - name: Install Root Deps
         run: npm install
 
       - name: Install Frontend Dependencies
