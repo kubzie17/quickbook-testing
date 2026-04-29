@@ -22,13 +22,17 @@ jobs:
         run: npm install 
       
       - name: Check for vulnerabilities in root
-        run: npm audit --audit-level=high || echo "Vulnerabilities found in root dependencies"
-        continue-on-error: true
-      
-      - name: Update root dependencies
         run: |
-          npm audit fix
-        continue-on-error: true
+          npm audit --json > root-audit-report.json 2>&1 || true
+          vulnerabilities=$(jq '.metadata.vulnerabilities.total' root-audit-report.json)
+          echo "Total vulnerabilities: $vulnerabilities"
+
+          if [ "$vulnerabilities" -gt 3 ]; then
+            echo "($vulnerabilities) vulnerabilities found, exceeding threshold of 3. Failing the build."
+            exit 1
+          else
+            echo "Vulnerabilities are within acceptable limits: ($vulnerabilities) <= 3"
+          fi
 
 #Backend Install
       - name: Install backend deps
@@ -39,14 +43,18 @@ jobs:
       - name: Check for vulnerabilities in backend
         run: |
           cd backend
-          npm audit --audit-level=high || echo "Vulnerabilities found in backend dependencies"
-        continue-on-error: true
+          npm audit --json > backend-audit-report.json 2>&1 || true
+          vulnerabilities=$(jq '.metadata.vulnerabilities.total' backend-audit-report.json)
+          echo "Total vulnerabilities: $vulnerabilities"
+
+          if [ "$vulnerabilities" -gt 3 ]; then
+            echo "($vulnerabilities) vulnerabilities found, exceeding threshold of 3. Failing the build."
+            exit 1
+          else
+            echo "Vulnerabilities are within acceptable limits: ($vulnerabilities) <= 3"
+          fi
       
-      - name: Update backend dependencies
-        run: |
-          cd backend
-          npm audit fix
-        continue-on-error: true
+      
 
 #Frontend Install
       - name: Install frontend deps
@@ -57,14 +65,18 @@ jobs:
       - name: Check for vulnerabilities in frontend
         run: |
           cd frontend
-          npm audit --audit-level=high || echo "Vulnerabilities found in frontend dependencies"
-        continue-on-error: true
+          npm audit --json > frontend-audit-report.json 2>&1 || true
+          vulnerabilities=$(jq '.metadata.vulnerabilities.total' frontend-audit-report.json)
+          echo "Total vulnerabilities: $vulnerabilities"
+
+          if [ "$vulnerabilities" -gt 3 ]; then
+            echo "($vulnerabilities) vulnerabilities found, exceeding threshold of 3. Failing the build."
+            exit 1
+          else
+            echo "Vulnerabilities are within acceptable limits: ($vulnerabilities) <= 3"
+          fi
     
-      - name: Update frontend dependencies
-        run: |
-          cd frontend
-          npm audit fix
-        continue-on-error: true
+     
 
 #Frontend Lint Tests
       - name: Run ESLint
@@ -77,7 +89,7 @@ jobs:
 
           if [ "$errors" -gt 10 ]; then
             echo "ESLint error count ($errors) exceed threshold of 10. Failing the build."
-            exit -1
+            exit 1
           else
             echo "ESLint errors are within acceptable limits: ($errors) <= 10"
           fi
