@@ -23,7 +23,7 @@ jobs:
       
       - name: Check for vulnerabilities in root
         run: |
-          npm audit --json > root-audit-report.json 2>&1 || true
+          npm audit --json > root-audit-report.json || true
           vulnerabilities=$(jq '.metadata.vulnerabilities.total' root-audit-report.json)
           echo "Total vulnerabilities: $vulnerabilities"
 
@@ -43,7 +43,7 @@ jobs:
       - name: Check for vulnerabilities in backend
         run: |
           cd backend
-          npm audit --json > backend-audit-report.json 2>&1 || true
+          npm audit --json > backend-audit-report.json || true
           vulnerabilities=$(jq '.metadata.vulnerabilities.total' backend-audit-report.json)
           echo "Total vulnerabilities: $vulnerabilities"
 
@@ -65,7 +65,7 @@ jobs:
       - name: Check for vulnerabilities in frontend
         run: |
           cd frontend
-          npm audit --json > frontend-audit-report.json 2>&1 || true
+          npm audit --json > frontend-audit-report.json || true
           vulnerabilities=$(jq '.metadata.vulnerabilities.total' frontend-audit-report.json)
           echo "Total vulnerabilities: $vulnerabilities"
 
