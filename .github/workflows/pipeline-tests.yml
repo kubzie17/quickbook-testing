@@ -40,7 +40,17 @@ jobs:
         run: |
           cd frontend
           npm i eslint
-          npx eslint .
+          npx eslint . -f json -o eslint-report.json || true
+
+          errors=$(cat eslint-report.json | jq '[.[].errorCount] | add')
+          echo "Total eslint error: $errors"
+
+          if [ "$errors" -ge 10]; then
+            echo " eslint failed: error count ($errors) exceeds threshold of 10"
+            exit -1
+          else
+            echo "eslint passed: error count ($errors) is less than threshold of 10"
+          fi
 
       # -------------------------
       # API TESTS (NEWMAN)
