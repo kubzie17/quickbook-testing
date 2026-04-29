@@ -34,7 +34,7 @@ jobs:
         run: |
           cd backend
           npm audit --audit-level=moderate
-          continue-on-error: true
+        continue-on-error: true
 
       - name: Run unit tests
         run: |
@@ -61,7 +61,7 @@ jobs:
         run: |
           cd frontend
           npm audit --audit-level=moderate
-          continue-on-error: true
+        continue-on-error: true
     
 
       - name: Start frontend
