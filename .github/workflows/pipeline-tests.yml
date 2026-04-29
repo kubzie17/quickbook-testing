@@ -6,51 +6,47 @@ on:
     branches: [debugging]
 
 jobs:
-  setup:
+  test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
-      - run: npm install
-      - run: |
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Install backend deps
+        run: |
           cd backend
-          npm install
-      - run: |
-          cd frontend
           npm install
 
-  unit-tests:
-    runs-on: ubuntu-latest
-    needs: setup
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-      - run: |
-          cd backend
-          npm install
-      - run: |
+      - name: Run unit tests
+        run: |
           cd backend
           npm test
 
-  frontend-and-cypress:
-    runs-on: ubuntu-latest
-    needs: setup
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-      - run: npm install
-      - run: |
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Run API tests
+        run: |
+          mkdir -p reports
+          newman run postman/quickbook-api.postman_collection.json \
+          -e postman/quickbook-render.postman_environment.json \
+          -r cli,htmlextra \
+          --reporter-htmlextra-export reports/api-report.html
+
+      - name: Install frontend deps
+        run: |
           cd frontend
           npm install
+
       - name: Start frontend
         run: |
           cd frontend
@@ -60,3 +56,33 @@ jobs:
           VITE_API_BASE_URL: https://quickbook-testing.onrender.com
       - run: npx wait-on http://localhost:5173 --timeout 120000
       - run: npx cypress run --browser electron
+      # INTENTIONAL BUG:
+      # The wait-on step is missing.
+      # Cypress may run before the frontend is ready.
+
+      - name: Show frontend log
+        if: always()
+        run: cat frontend.log
+
+      - name: Install Cypress binary
+        run: npx cypress install
+
+      - name: Verify Cypress
+        run: npx cypress verify
+
+      - name: Run Cypress tests
+        run: npx cypress run --browser electron
+
+      - name: Upload API report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-report
+          path: reports/api-report.html
+
+      - name: Upload Cypress screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
