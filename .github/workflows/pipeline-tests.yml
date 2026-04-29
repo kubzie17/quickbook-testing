@@ -1,4 +1,4 @@
-name: nova
+name: wait
 
 on:
   push:
@@ -54,9 +54,9 @@ jobs:
           CI: true
           VITE_API_BASE_URL: https://quickbook-testing.onrender.com
 
-      # INTENTIONAL BUG:
-      # The wait-on step is missing.
-      # Cypress may run before the frontend is ready.
+      # intentional bug:
+      # the wait-on step is missing.
+      # cypress may run before the frontend is ready.
 
       - name: show frontend log
         if: always()
