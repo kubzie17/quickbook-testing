@@ -1,0 +1,7 @@
+# ── PRE-PUSH HOOK ────────────────────────────────────────────
+# Runs BEFORE code is pushed to the remote repository.
+# This is your last line of defence before code leaves your machine.
+# If tests fail, the push is blocked.
+
+echo "Running unit tests before push..."
+cd backend && npx vitest run

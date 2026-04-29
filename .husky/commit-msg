@@ -1,0 +1,11 @@
+# ── COMMIT-MSG HOOK ──────────────────────────────────────────
+# Runs AFTER you write a commit message but BEFORE the commit is finalised.
+# Validates that the message follows conventional commit format:
+#   type(scope): description
+#   e.g. feat(auth): add login endpoint
+#        fix(ci): correct eslint config
+#
+# Valid types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
+# If the message doesn't match, the commit is rejected.
+
+npx --no -- commitlint --edit "$1"

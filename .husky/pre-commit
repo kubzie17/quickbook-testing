@@ -1,0 +1,13 @@
+# ── PRE-COMMIT HOOK ──────────────────────────────────────────
+# Runs BEFORE a commit is created.
+# If any check fails, the commit is blocked.
+# This catches problems BEFORE they reach the remote repo.
+
+# Run unit tests first
+# Using a subshell (...) so the cd doesn't affect the rest of the script
+echo "Running unit tests before commit..."
+(cd backend && npm test)
+
+# Run lint-staged — only lints the files you're actually committing,
+# not the entire project. Fast and targeted.
+npx lint-staged
