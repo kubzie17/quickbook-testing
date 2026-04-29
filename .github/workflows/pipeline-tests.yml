@@ -50,6 +50,19 @@ jobs:
         run: |
           cd frontend
           npm install
+      
+      - name: Run ESLint
+        run: |
+          cd frontend
+          npm run lint
+          npx eslint . -f json -o eslint-report.json || true
+
+          errors=$(cat eslint-report.json | jq '[.[].errorCount] | add')
+          echo "Total eslint error: $errors"
+
+          if [ "$errors" -ge 10]; then 
+            echo "eslint failed: error count ($errors) exceeds threshold of 10"
+          fi
 
       - name: Start backend
         run: |
