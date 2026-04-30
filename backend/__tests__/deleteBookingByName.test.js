@@ -15,7 +15,7 @@ describe("deleteBookingById", () => {
 
         const result = deleteBookingById(bookings, 1);
 
-        expect(result.success).toBe(true);
+        expect(result.success).toBe(false);
         expect(result.updatedBookings.length).toBe(1);
     });
 

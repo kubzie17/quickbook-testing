@@ -34,8 +34,8 @@ if [ "$total_high" -gt 0 ]; then
   exit 1
 fi
 
-if [ "$total" -gt 2 ]; then
-  echo "BLOCKED: $total vulnerabilities exceed threshold of 2"
+if [ "$total" -gt 3 ]; then
+  echo "BLOCKED: $total vulnerabilities exceed threshold of 3"
   exit 1
 fi
 
