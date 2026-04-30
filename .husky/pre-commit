@@ -1,5 +1,6 @@
 echo ""
 echo "✨🐝 Running unit tests for your bee-ce of mind 🐝✨"
+touch /tmp/.precommit-ran.json
 
 cd backend
 npm test
