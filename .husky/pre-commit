@@ -1,6 +1,5 @@
 echo ""
-echo "Running unit tests for your bee-ce of mind 🐝✨"
-echo ""
+echo "✨🐝 Running unit tests for your bee-ce of mind 🐝✨"
 
 cd backend
 npm test
