@@ -1,1 +1,6 @@
+echo "Running unit tests before commit"
+
+cd backend
+npm test
+
 #!/usr/bin/env sh
