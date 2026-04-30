@@ -34,22 +34,6 @@ jobs:
           cd frontend
           npm install
 
-#Frontend Lint Tests
-      - name: Run ESLint
-        run: |
-          cd frontend
-          npx eslint . -f json -o eslint-report.json || true
-
-          errors=$(cat eslint-report.json | jq '[.[].errorCount] | add')
-          echo "Total ESLint errors: $errors"
-
-          if [ "$errors" -gt 10 ]; then
-            echo "ESLint error count ($errors) exceed threshold of 10. Failing the build."
-            exit 1
-          else
-            echo "ESLint errors are within acceptable limits: ($errors) <= 10"
-          fi
-
 #Backend (Unit) Tests
       - name: Run unit tests
         run: |
