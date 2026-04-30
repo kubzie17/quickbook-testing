@@ -24,6 +24,7 @@ export default function App() {
         <Route path="/book" element={<BookAppointment />} />
         <Route path="/bookings" element={<MyBookings />} />
         <Route path="/services" element={<Services />} />
+        <Route path="/debug" element={<DebugPractice />} />
       </Routes>
     </div>
   );
