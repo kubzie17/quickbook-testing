@@ -5,7 +5,7 @@ on:
     branches: [pipeline_build]
 
 jobs:
-  test:
+  jobOne:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,6 +17,10 @@ jobs:
         with:
           node-version: 22
 
+      # -------------------------
+      # ROOT DEPENDENCIES
+      # -------------------------
+      - name: Install root dependencies
       # -------------------------
       # ROOT DEPENDENCIES
       # -------------------------
