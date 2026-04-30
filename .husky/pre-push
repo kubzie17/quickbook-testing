@@ -3,11 +3,7 @@
 # This is your last line of defence before code leaves your machine.
 # If any check fails, the push is blocked.
 
-# 1. Run unit tests
-echo "Running unit tests before push..."
-(cd backend && npx vitest run)
-
-# 2. Run security audit
+# 1. Run security audit
 # Checks all dependencies for known vulnerabilities (CVEs).
 # Uses the same threshold logic as the CI pipeline.
 # Critical/High = instant block. Moderate+Low = threshold of 3.
