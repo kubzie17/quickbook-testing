@@ -60,7 +60,7 @@ jobs:
           echo "Running npm audit for vulnerabilities..."
           npm audit --json > audit-report.json || true
 
-          vuln_count=$(cat audit-report.json | jq '.metadata.vulnerabilities | to_entries | map(.value) | add')
+          vuln_count=$(cat audit-report.json | jq '.metadata.vulnerabilities.total')
           echo "Total vulnerabilities found: $vuln_count"
 
           if [ "$vuln_count" -gt 3 ]; then
@@ -99,7 +99,12 @@ jobs:
 
       - name: Show frontend log
         if: always()
-        run: cat frontend.log
+        run: |
+          if [ -f frontend.log ]; then
+            cat frontend.log
+          else
+            echo "frontend.log not found (frontend may not have been started)"
+          fi
 
       - name: Install Cypress binary
         run: npx cypress install
