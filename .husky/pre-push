@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-. "$(dirname "$0")/h"
+
 
 audit_output=$(npm audit --json || true)
           
