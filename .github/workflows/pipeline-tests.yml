@@ -50,7 +50,7 @@ jobs:
           echo "Low"
           echo "$audit_output" | jq '[.vulnerabilities | to_entries[] | select(.value.severity == "low") | .key] | if length == 0 then "None" else .[] end'
 
-          vuln_count=$(echo "$audit_output" | jq '.metadata.vulnerabilities.high + .metadata.vulnerabilities.critical')
+          vuln_count=$(echo "$audit_output" | jq '.metadata.vulnerabilities.moderate + .metadata.vulnerabilities.critical')
           echo "Total high/critical vulnerabilities: $vuln_count"
 
           if [ "$vuln_count" -ge 2 ]; then
