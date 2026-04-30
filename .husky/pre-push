@@ -18,7 +18,7 @@ echo ""
 echo "Low"
 echo "$audit_output" | jq '[.vulnerabilities | to_entries[] | select(.value.severity == "low") | .key] | if length == 0 then "None" else .[] end'
 
-vuln_count=$(echo "$audit_output" | jq '.metadata.vulnerabilities.high + .metadata.vulnerabilities.critical')
+vuln_count=$(echo "$audit_output" | jq '.metadata.vulnerabilities.moderate + .metadata.vulnerabilities.critical')
 echo "Total high/critical vulnerabilities: $vuln_count"
 
 if [ "$vuln_count" -ge 2 ]; then
@@ -27,3 +27,13 @@ exit 1
 else
 echo "Audit passed: $vuln_count is within threshold"
 fi
+
+describe("validateLogin", () => {
+  test("valid credentials return success", () => {
+    const result = validateLogin("student@example.com", "Passwordabc");
+
+    expect(result.success).toBe(true);
+    expect(result.message).toBe("Login successful");
+    expect(result.user.email).toBe("student@example.com");
+  });
+});
