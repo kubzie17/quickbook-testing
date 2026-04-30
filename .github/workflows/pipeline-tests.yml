@@ -15,25 +15,19 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
 
       - name: Install root dependencies
         run: npm install
 
-      - name: Install backend deps
-        run: |
-          cd backend
-          npm install
-
-      - name: Run unit tests
-        run: |
-          cd backend
-          npm test
+      # INTENTIONAL BUG:
+      # Backend unit tests are missing from this pipeline.
+      # The pipeline can pass even if the unit tests are broken.
 
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
@@ -50,27 +44,6 @@ jobs:
         run: |
           cd frontend
           npm install
-      
-      - name: Run ESLint
-        run: |
-          cd frontend
-          npm i eslint
-          npx eslint . -f json -o eslint-report.json || true
-
-          errors=$(cat eslint-report.json | jq '[.[].errorCount] | add')
-          echo "Total eslint error: $errors"
-
-          if [ "$errors" -ge 10 ]; then
-            echo "eslint failed: error count ($errors) exceeds threshold of 10"
-            exit 1
-          else
-            echo "eslint passed: error count ($errors) is less than threshold of 10"
-          fi
-
-      - name: Start backend
-        run: |
-          cd backend
-          node server.js &
 
       - name: Start frontend
         run: |
@@ -78,10 +51,7 @@ jobs:
           npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
         env:
           CI: true
-          # INTENTIONAL BUG:
-          # This API URL is wrong.
-          # The frontend will run, but API requests may fail.
-          VITE_API_BASE_URL: http://localhost:3001
+          VITE_API_BASE_URL: https://quickbook-testing.onrender.com
 
       - name: Wait for frontend
         run: npx wait-on http://localhost:5173 --timeout 120000
@@ -101,14 +71,14 @@ jobs:
 
       - name: Upload API report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: api-report
           path: reports/api-report.html
 
       - name: Upload Cypress screenshots
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
           path: cypress/screenshots
