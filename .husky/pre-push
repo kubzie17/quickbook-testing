@@ -3,7 +3,12 @@
 # This is your last line of defence before code leaves your machine.
 # If any check fails, the push is blocked.
 
-# 1. Run security audit
+# 1. Run unit tests first
+# Using a subshell (...) so the cd doesn't affect the rest of the script
+echo "Running unit tests before commit..."
+(cd backend && npm test)
+
+# 2. Run security audit
 # Checks all dependencies for known vulnerabilities (CVEs).
 # Uses the same threshold logic as the CI pipeline.
 # Critical/High = instant block. Moderate+Low = threshold of 3.
