@@ -96,30 +96,72 @@ jobs:
         run: |
           echo "── Auditing root dependencies ──"
           npm audit --json > audit-root.json 2>&1 || true
-          root=$(cat audit-root.json | jq '.metadata.vulnerabilities | to_entries | map(select(.key != "info")) | map(.value) | add // 0')
 
           echo "── Auditing backend dependencies ──"
           (cd backend && npm audit --json > ../audit-backend.json 2>&1 || true)
-          back=$(cat audit-backend.json | jq '.metadata.vulnerabilities | to_entries | map(select(.key != "info")) | map(.value) | add // 0')
 
           echo "── Auditing frontend dependencies ──"
           (cd frontend && npm audit --json > ../audit-frontend.json 2>&1 || true)
-          front=$(cat audit-frontend.json | jq '.metadata.vulnerabilities | to_entries | map(select(.key != "info")) | map(.value) | add // 0')
 
-          total=$(( root + back + front ))
+          # Extract severity counts from each report.
+          # jq pulls .metadata.vulnerabilities which looks like:
+          #   { "info": 0, "low": 0, "moderate": 3, "high": 0, "critical": 0 }
+          # "// 0" handles cases where the field is null or missing.
+          root_low=$(cat audit-root.json | jq '.metadata.vulnerabilities.low // 0')
+          root_mod=$(cat audit-root.json | jq '.metadata.vulnerabilities.moderate // 0')
+          root_high=$(cat audit-root.json | jq '.metadata.vulnerabilities.high // 0')
+          root_crit=$(cat audit-root.json | jq '.metadata.vulnerabilities.critical // 0')
+
+          back_low=$(cat audit-backend.json | jq '.metadata.vulnerabilities.low // 0')
+          back_mod=$(cat audit-backend.json | jq '.metadata.vulnerabilities.moderate // 0')
+          back_high=$(cat audit-backend.json | jq '.metadata.vulnerabilities.high // 0')
+          back_crit=$(cat audit-backend.json | jq '.metadata.vulnerabilities.critical // 0')
+
+          front_low=$(cat audit-frontend.json | jq '.metadata.vulnerabilities.low // 0')
+          front_mod=$(cat audit-frontend.json | jq '.metadata.vulnerabilities.moderate // 0')
+          front_high=$(cat audit-frontend.json | jq '.metadata.vulnerabilities.high // 0')
+          front_crit=$(cat audit-frontend.json | jq '.metadata.vulnerabilities.critical // 0')
+
+          # Sum across all directories
+          total_low=$(( root_low + back_low + front_low ))
+          total_mod=$(( root_mod + back_mod + front_mod ))
+          total_high=$(( root_high + back_high + front_high ))
+          total_crit=$(( root_crit + back_crit + front_crit ))
+          total=$(( total_low + total_mod + total_high + total_crit ))
 
           echo ""
-          echo "╔════════════════════════════════════╗"
-          echo "║       SECURITY AUDIT SUMMARY       ║"
-          echo "╠════════════════════════════════════╣"
-          echo "║  Root:      $root vulnerabilities. ║"
-          echo "║  Backend:   $back vulnerabilities. ║"
-          echo "║  Frontend:  $front vulnerabilities.║"
-          echo "║  ────────────────────────────────  ║"
-          echo "║  TOTAL:     $total                 ║"
-          echo "║  THRESHOLD: 3                      ║"
-          echo "╚════════════════════════════════════╝"
+          echo "╔══════════════════════════════════════════╗"
+          echo "║         SECURITY AUDIT SUMMARY           ║"
+          echo "╠══════════════════════════════════════════╣"
+          echo "║  Critical:  $total_crit                  ║"
+          echo "║  High:      $total_high                  ║"
+          echo "║  Moderate:  $total_mod                   ║"
+          echo "║  Low:       $total_low                   ║"
+          echo "║  ──────────────────────────────────────  ║"
+          echo "║  TOTAL:     $total                       ║"
+          echo "║  THRESHOLD: 3                            ║"
+          echo "║                                          ║"
+          echo "║  By directory:                           ║"
+          echo "║    Root:     L:$root_low M:$root_mod H:$root_high C:$root_crit"
+          echo "║    Backend:  L:$back_low M:$back_mod H:$back_high C:$back_crit"
+          echo "║    Frontend: L:$front_low M:$front_mod H:$front_high C:$front_crit"
+          echo "╚══════════════════════════════════════════╝"
 
+          # Critical and high — zero tolerance, fail immediately.
+          # In fintech, these are non-negotiable.
+          if [ "$total_crit" -gt 0 ]; then
+            echo "::error::CRITICAL vulnerabilities found — pipeline blocked"
+            exit 1
+          fi
+
+          if [ "$total_high" -gt 0 ]; then
+            echo "::error::HIGH vulnerabilities found — pipeline blocked"
+            exit 1
+          fi
+
+          # Moderate and low — apply the threshold.
+          # These are often transitive dependencies you can't directly fix
+          # (like Cypress depending on a vulnerable uuid package).
           if [ "$total" -gt 3 ]; then
             echo "::error::Security audit FAILED — $total vulnerabilities exceed threshold of 3"
             exit 1
