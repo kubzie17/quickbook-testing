@@ -40,4 +40,12 @@ it("shows an error for failed login using custom command", () => {
   cy.get('[data-testid="login-message"]', { timeout: 20000 })
     .should("contain", "Invalid email or password");
 });
+
+it("increases the counter", () => {
+  cy.visit("/debug");
+
+  cy.get('[data-testid="count-value"]').should("contain", "Count: 0");
+  cy.get('[data-testid="increase-count"]').click();
+  cy.get('[data-testid="count-value"]').should("contain", "Count: 1");
+});
 });
