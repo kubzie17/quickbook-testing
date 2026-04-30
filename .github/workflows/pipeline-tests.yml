@@ -65,10 +65,9 @@ jobs:
             echo "eslint passed: error count ($errors) is less than threshold of 10"
           fi
 
-      # ============================================================
-      # THURS 30 APRIL - TASK 2: Vulnerability check
+      # Task 2: Vulnerability check
       # Runs npm audit and fails if more than 3 vulnerabilities
-      # ============================================================
+
       - name: Run vulnerability check
         run: |
           echo "Running npm audit for vulnerabilities..."
@@ -84,9 +83,9 @@ jobs:
             echo "Vulnerability check PASSED: $vuln_count vulnerabilities found (threshold: 3)"
           fi
 
-      # --------------------------
-      # API TESTS (NEWMAN)
-      # --------------------------
+
+      # API Tests
+
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
 
