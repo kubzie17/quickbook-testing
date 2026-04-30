@@ -21,6 +21,29 @@ jobs:
       - name: Install root dependencies
         run: npm install
 
+      # TASK 2 
+      # VULNERABILITY SCAN:
+      # npm audit checks all installed dependencies for known security vulnerabilities.
+      # --json outputs the results in JSON format so we can parse them.
+      # || true prevents the step from failing immediately (npm audit exits non-zero if it finds issues).
+      # We use jq to extract the count of high and critical severity vulnerabilities.
+      # If that count is 3 or more, we fail the pipeline with exit 1.
+      # This lets us tolerate a few minor issues while catching serious security risks.
+
+
+      - name: Checking for vulnerabilities 
+        run: |
+          audit_output=$(npm audit --json || true)
+          vuln_count=$(echo "$audit_output" | jq '.metadata.vulnerabilities.high + .metadata.vulnerabilities.critical')
+          echo "Total high/critical vulnerabilities: $vuln_count"
+
+          if [ "$vuln_count" -ge 3 ]; then
+            echo "Audit failed: $vuln_count high/critical vulnerabilities exceeds threshold of 3"
+            exit 1
+          else
+            echo "Audit passed: $vuln_count is within threshold"
+          fi
+
       # INTENTIONAL BUG:
       # Backend unit tests are missing from this pipeline.
       # The pipeline can pass even if the unit tests are broken.
