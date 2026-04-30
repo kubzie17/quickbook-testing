@@ -136,7 +136,7 @@ function deleteBookingById(bookings, bookingId) {
   if (updatedBookings.length === initialLength) {
     return {
       success: false,
-      message: "Booking found",
+      message: "Booking not found",
       updatedBookings
     };
   }
