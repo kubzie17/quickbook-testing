@@ -4,5 +4,5 @@ export default function Home() {
       <h2>Welcome to QuickBook</h2>
       <p>Book and manage appointments easily.</p>
   
-  );
+  )
 }
