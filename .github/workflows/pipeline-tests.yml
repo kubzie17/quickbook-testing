@@ -33,10 +33,10 @@ jobs:
           echo "🔋 Total low vulnerabilities: $low"
 
           if [ "$total" -gt 3 ]; then
-            echo "‼️($total) total vulnerabilities found, exceeding threshold of 3.‼ ($critical) critical, ($moderate) moderate, ($low) low. Failing the build."
+            echo "‼($total) total vulnerabilities found, exceeding threshold of 3! ($critical) critical, ($moderate) moderate, ($low) low. Failing the build."
             exit 1
           else
-            echo "✅Vulnerabilities are within acceptable limits: ($total) <= 3"
+            echo "Vulnerabilities are within acceptable limits: ($total) <= 3"
           fi
 
 #Backend Install
@@ -58,10 +58,10 @@ jobs:
           echo "🔋 Total low vulnerabilities: $low"
 
           if [ "$total" -gt 3 ]; then
-            echo "‼️($total) total vulnerabilities found in backend, exceeding threshold of 3.‼ ($critical) critical, ($moderate) moderate, ($low) low. Failing the build."
+            echo "‼($total) total vulnerabilities found in backend, exceeding threshold of 3‼ ($critical) critical, ($moderate) moderate, ($low) low. Failing the build."
             exit 1
           else
-            echo "✅Vulnerabilities are within acceptable limits: ($total) <= 3"
+            echo "Vulnerabilities are within acceptable limits: ($total) <= 3"
           fi
       
       
@@ -85,10 +85,10 @@ jobs:
           echo "🔋 Total low vulnerabilities: $low"
 
           if [ "$total" -gt 3 ]; then
-            echo "‼️($total) total vulnerabilities found in frontend, exceeding threshold of 3.‼ ($critical) critical, ($moderate) moderate, ($low) low. Failing the build."
+            echo "‼($total) total vulnerabilities found in frontend, exceeding threshold of 3‼ ($critical) critical, ($moderate) moderate, ($low) low. Failing the build."
             exit 1
           else
-            echo "✅Vulnerabilities are within acceptable limits: ($total) <= 3"
+            echo "Vulnerabilities are within acceptable limits: ($total) <= 3"
           fi
     
      
