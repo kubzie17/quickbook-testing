@@ -1,15 +1,11 @@
-# ============================================================
-# THURS 30 APRIL - TASK 1: Fix broken pipeline
-# Fixed: deprecated actions (v4 -> v6/v7)
-# Fixed: added missing backend deps install + unit tests
-# Fixed: added missing backend server start
-# ============================================================
+# Task 1: Fix broken pipeline
+# Task 2: Add vulnerability check
 
 name: Pipeline Testing
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, newbranch ]
   pull_request:
 
 jobs:
@@ -18,19 +14,16 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 22
 
       - name: Install root dependencies
         run: npm install
 
-      # --------------------------
-      # UNIT TESTS (JEST) - FIX: was missing from broken pipeline
-      # --------------------------
       - name: Install backend deps
         run: |
           cd backend
@@ -41,9 +34,6 @@ jobs:
           cd backend
           npm test
 
-      # --------------------------
-      # ESLINT
-      # --------------------------
       - name: Install frontend deps
         run: |
           cd frontend
@@ -65,9 +55,6 @@ jobs:
             echo "eslint passed: error count ($errors) is less than threshold of 10"
           fi
 
-      # Task 2: Vulnerability check
-      # Runs npm audit and fails if more than 3 vulnerabilities
-
       - name: Run vulnerability check
         run: |
           echo "Running npm audit for vulnerabilities..."
@@ -83,9 +70,6 @@ jobs:
             echo "Vulnerability check PASSED: $vuln_count vulnerabilities found (threshold: 3)"
           fi
 
-
-      # API Tests
-
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
 
@@ -93,13 +77,10 @@ jobs:
         run: |
           mkdir -p reports
           newman run postman/quickbook-api.postman_collection.json \
-          -e postman/quickbook-render.postman_environment.json \
-          -r cli,htmlextra \
-          --reporter-htmlextra-export reports/api-report.html
+            -e postman/quickbook-render.postman_environment.json \
+            -r cli,htmlextra \
+            --reporter-htmlextra-export reports/api-report.html
 
-      # --------------------------
-      # E2E TESTS (CYPRESS)
-      # --------------------------
       - name: Start backend
         run: |
           cd backend
@@ -129,19 +110,16 @@ jobs:
       - name: Run Cypress tests
         run: npx cypress run --browser electron
 
-      # --------------------------
-      # ARTIFACTS
-      # --------------------------
       - name: Upload API report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: api-report
           path: reports/api-report.html
 
       - name: Upload Cypress screenshots
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
           path: cypress/screenshots
