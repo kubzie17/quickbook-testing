@@ -1,4 +1,7 @@
-echo "Running unit tests before commit"
+echo "Running lint and unit tests before commit"
 
-cd backend
+cd frontend
+npm run lint
+
+cd ../backend
 npm test

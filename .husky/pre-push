@@ -1,0 +1,9 @@
+echo "Checking for vulnerabilities before push"
+
+npm audit --audit-level=moderate || echo "Root: vulnerabilities found"
+
+cd backend
+npm audit --audit-level=moderate || echo "Backend: vulnerabilities found"
+
+cd ../frontend
+npm audit --audit-level=moderate || echo "Frontend: vulnerabilities found"
