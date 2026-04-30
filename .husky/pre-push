@@ -7,6 +7,7 @@
 # Checks all dependencies for known vulnerabilities (CVEs).
 # Uses the same threshold logic as the CI pipeline.
 # Critical/High = instant block. Moderate+Low = threshold of 3.
+
 echo ""
 echo "Running security audit before push..."
 
@@ -21,7 +22,7 @@ total_low=$(echo "$root_vulns $back_vulns $front_vulns" | jq -s 'map(.low // 0) 
 total=$(( total_crit + total_high + total_mod + total_low ))
 
 echo ""
-echo "Security Audit: C:$total_crit H:$total_high M:$total_mod L:$total_low (total: $total, threshold: 3)"
+echo "Security Audit: C:$total_crit H:$total_high M:$total_mod L:$total_low (total: $total, threshold: 2)"
 
 if [ "$total_crit" -gt 0 ]; then
   echo "BLOCKED: Critical vulnerabilities found"
@@ -34,7 +35,7 @@ if [ "$total_high" -gt 0 ]; then
 fi
 
 if [ "$total" -gt 3 ]; then
-  echo "BLOCKED: $total vulnerabilities exceed threshold of 3"
+  echo "BLOCKED: $total vulnerabilities exceed threshold of 2"
   exit 1
 fi
 

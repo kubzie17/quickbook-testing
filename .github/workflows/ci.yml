@@ -139,7 +139,7 @@ jobs:
           echo "║  Low:       $total_low                   ║"
           echo "║  ──────────────────────────────────────  ║"
           echo "║  TOTAL:     $total                       ║"
-          echo "║  THRESHOLD: 3                            ║"
+          echo "║  THRESHOLD: 2                            ║"
           echo "║                                          ║"
           echo "║  By directory:                           ║"
           echo "║    Root:     L:$root_low M:$root_mod H:$root_high C:$root_crit"
@@ -162,8 +162,8 @@ jobs:
           # Moderate and low — apply the threshold.
           # These are often transitive dependencies you can't directly fix
           # (like Cypress depending on a vulnerable uuid package).
-          if [ "$total" -gt 3 ]; then
-            echo "::error::Security audit FAILED — $total vulnerabilities exceed threshold of 3"
+          if [ "$total" -gt 2 ]; then
+            echo "::error::Security audit FAILED — $total vulnerabilities exceed threshold of 2"
             exit 1
           else
             echo "Security audit PASSED — $total vulnerabilities within threshold"
