@@ -17,13 +17,19 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: 22
 
+      # -------------------------
+      # ROOT DEPENDENCIES
+      # -------------------------
       - name: Install root dependencies
         run: npm install
 
+      # -------------------------
+      # UNIT TESTS (JEST)
+      # -------------------------
       - name: Install backend deps
         run: |
           cd backend
@@ -55,6 +61,9 @@ jobs:
             echo "eslint passed: error count ($errors) is less than threshold of 5"
           fi
 
+      # -------------------------
+      # API TESTS (NEWMAN)
+      # -------------------------
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
 
@@ -66,6 +75,9 @@ jobs:
             -r cli,htmlextra \
             --reporter-htmlextra-export reports/api-report.html
 
+      # -------------------------
+      # FRONTEND (VITE)
+      # -------------------------
       - name: Start backend
         run: |
           cd backend
@@ -91,6 +103,9 @@ jobs:
             echo "frontend.log not found (frontend may not have been started)"
           fi
 
+      # -------------------------
+      # CYPRESS TESTS
+      # -------------------------
       - name: Install Cypress binary
         run: npx cypress install
 
@@ -100,6 +115,9 @@ jobs:
       - name: Run Cypress tests
         run: npx cypress run --browser electron
 
+      # -------------------------
+      # UPLOAD REPORTS
+      # -------------------------
       - name: Upload API report
         if: always()
         uses: actions/upload-artifact@v6
