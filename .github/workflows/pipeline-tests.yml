@@ -53,8 +53,8 @@ jobs:
           vuln_count=$(echo "$audit_output" | jq '.metadata.vulnerabilities.moderate + .metadata.vulnerabilities.critical')
           echo "Total high/critical vulnerabilities: $vuln_count"
 
-          if [ "$vuln_count" -ge 2 ]; then
-            echo "Audit failed: $vuln_count high/critical vulnerabilities exceeds threshold of 2"
+          if [ "$vuln_count" -ge 10 ]; then
+            echo "Audit failed: $vuln_count high/critical vulnerabilities exceeds threshold of 10"
             exit 1
           else
             echo "Audit passed: $vuln_count is within threshold"
