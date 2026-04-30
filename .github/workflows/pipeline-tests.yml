@@ -34,7 +34,7 @@ jobs:
           npm install
 
 #Backend (Unit) Tests
-      - name: Run unit tests
+      - name: Run the unit tests
         run: |
           cd backend
           npm test
