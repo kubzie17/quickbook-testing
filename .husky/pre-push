@@ -1,10 +1,10 @@
 echo "🦥Running backend unit tests before pushing🦥"
-
 cd backend
 npm test || exit 1
 
 cd ../frontend
 echo "🦥Running frontend unit tests before pushing🦥"
+npm run build || exit 1
 
 cd ..
 echo "🦥All pre-push checks passed! Ready to push. 🦥"
