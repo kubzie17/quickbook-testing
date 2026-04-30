@@ -1,4 +1,6 @@
-echo "running unit tests before commit"
+echo ""
+echo "Running unit tests for your bee-ce of mind 🐝✨"
+echo ""
 
 cd backend
 npm test
