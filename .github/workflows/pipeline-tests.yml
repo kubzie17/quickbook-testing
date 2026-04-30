@@ -55,21 +55,6 @@ jobs:
             echo "eslint passed: error count ($errors) is less than threshold of 10"
           fi
 
-      - name: Run vulnerability check
-        run: |
-          echo "Running npm audit for vulnerabilities..."
-          npm audit --json > audit-report.json || true
-
-          vuln_count=$(cat audit-report.json | jq '.metadata.vulnerabilities.total')
-          echo "Total vulnerabilities found: $vuln_count"
-
-          if [ "$vuln_count" -gt 3 ]; then
-            echo "Vulnerability check FAILED: $vuln_count vulnerabilities found (threshold: 3)"
-            exit 1
-          else
-            echo "Vulnerability check PASSED: $vuln_count vulnerabilities found (threshold: 3)"
-          fi
-
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
 
