@@ -7,7 +7,7 @@ const {
 
 describe("validateLogin", () => {
   test("valid credentials return success", () => {
-    const result = validateLogin("student@example.com", "Passwordabc");
+    const result = validateLogin("student@example.com", "Password123");
 
     expect(result.success).toBe(true);
     expect(result.message).toBe("Login successful");

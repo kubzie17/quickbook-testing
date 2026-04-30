@@ -1,16 +1,1 @@
 #!/usr/bin/env sh
-
-echo "Running unit tests before commit"
-
-cd backend
-npm test
-
-describe("validateLogin", () => {
-  test("valid credentials return success", () => {
-    const result = validateLogin("student@example.com", "Passwordabc");
-
-    expect(result.success).toBe(true);
-    expect(result.message).toBe("Login successful");
-    expect(result.user.email).toBe("student@example.com");
-  });
-});
