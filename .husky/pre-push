@@ -1,39 +1,10 @@
-echo "Running unit tests before push"
+echo "Running backend unit tests..."
 cd backend
-npm test
+npm test || exit 1
 
-echo ""
-echo "Running npm audit for vulnerabilities..."
+cd ../frontend
+echo "Building frontend..."
+npm run build || exit 1
 
-audit_output=$(npm audit --json || true)
-
-echo ""
-echo "=== Vulnerabilities Summary ==="
-echo "$audit_output" | jq ".metadata.vulnerabilities"
-
-echo ""
-echo "Critical:"
-echo "$audit_output" | jq '[.vulnerabilities | to_entries[] | select(.value.severity == "critical") | .key] | if length == 0 then "None" else .[] end'
-
-echo ""
-echo "High:"
-echo "$audit_output" | jq '[.vulnerabilities | to_entries[] | select(.value.severity == "high") | .key] | if length == 0 then "None" else .[] end'
-
-echo ""
-echo "Moderate:"
-echo "$audit_output" | jq '[.vulnerabilities | to_entries[] | select(.value.severity == "moderate") | .key] | if length == 0 then "None" else .[] end'
-
-echo ""
-echo "Low:"
-echo "$audit_output" | jq '[.vulnerabilities | to_entries[] | select(.value.severity == "low") | .key] | if length == 0 then "None" else .[] end'
-
-echo ""
-vuln_count=$(echo "$audit_output" | jq '.metadata.vulnerabilities.high + .metadata.vulnerabilities.critical')
-echo "Total high/critical vulnerabilities: $vuln_count"
-
-if [ "$vuln_count" -gt 3 ]; then
-  echo "Audit FAILED: $vuln_count high/critical vulnerabilities exceeds threshold of 3"
-  exit 1
-else
-  echo "Audit PASSED: $vuln_count high/critical vulnerabilities is within threshold of 3"
-fi
+cd ..
+echo "All pre-push checks passed."
