@@ -26,18 +26,18 @@ describe("QuickBook E2E", () => {
   });
 
   it("logs in successfully using custom command", () => {
-  cy.login("student@example.com", "Password123");
+    cy.login("student@example.com", "Password123");
 
-  cy.wait("@postLogin", { timeout: 20000 });
-  cy.get('[data-testid="login-message"]', { timeout: 20000 })
-    .should("contain", "Login successful");
-});
+    cy.wait("@postLogin", { timeout: 20000 });
+    cy.get('[data-testid="login-message"]', { timeout: 20000 })
+      .should("contain", "Login successful");
+  });
 
-it("shows an error for failed login using custom command", () => {
-  cy.login("student@example.com", "wrong");
+  it("shows an error for failed login using custom command", () => {
+    cy.login("student@example.com", "wrong");
 
-  cy.wait("@postLogin", { timeout: 20000 });
-  cy.get('[data-testid="login-message"]', { timeout: 20000 })
-    .should("contain", "Invalid email or password");
-});
+    cy.wait("@postLogin", { timeout: 20000 });
+    cy.get('[data-testid="login-message"]', { timeout: 20000 })
+      .should("contain", "Invalid email or password");
+  });
 });
