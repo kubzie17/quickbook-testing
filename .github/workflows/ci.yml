@@ -5,10 +5,10 @@ name: CI/CD Pipeline
 # Think of it as: "Hey GitHub, run this recipe when..."
 on:
   push:
-    branches: [CI/CD]          # ...code is pushed to CI/CD branch
+    branches: [CI/CD] # ...code is pushed to CI/CD branch
   pull_request:
-    branches: [CI/CD]          # ...a PR is opened targeting CI/CD
-  workflow_dispatch:           # ...someone manually clicks "Run workflow" in GitHub UI
+    branches: [CI/CD] # ...a PR is opened targeting CI/CD
+  workflow_dispatch: # ...someone manually clicks "Run workflow" in GitHub UI
 
 # ── ENVIRONMENT VARIABLES ────────────────────────────────────
 # These are available to ALL jobs in the workflow.
@@ -32,13 +32,97 @@ permissions:
 # each one does their own thing on their own machine.
 #
 jobs:
-  #  JOB 1: LINT & CODE QUALITY                              
-  #  Purpose: Catch syntax errors, style issues, bad imports 
-  #  Why first: It's fast (seconds). Fail fast, save time.   
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ JOB 0: SECURITY AUDIT                                   │
+  # │ Purpose: Scan dependencies for known vulnerabilities     │
+  # │ Uses npm audit to check every package against the        │
+  # │ GitHub Advisory Database. In fintech, shipping code with │
+  # │ known CVEs is a compliance failure.                      │
+  # │ Threshold: fails if more than 3 vulnerabilities found.   │
+  # └─────────────────────────────────────────────────────────┘
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # Audit all three package directories: root, backend, frontend.
+      # npm audit --json outputs machine-readable results.
+      # We count total vulnerabilities and fail if they exceed the threshold.
+      - name: Audit root dependencies
+        run: |
+          npm install
+          npm audit --json > root-audit.json || true
+          root_vulns=$(cat root-audit.json | jq '.metadata.vulnerabilities | to_entries | map(.value) | add // 0')
+          echo "Root vulnerabilities: $root_vulns"
+          echo "root_vulns=$root_vulns" >> $GITHUB_ENV
+
+      - name: Audit backend dependencies
+        run: |
+          npm install
+          npm audit --json > backend-audit.json || true
+          backend_vulns=$(cat backend-audit.json | jq '.metadata.vulnerabilities | to_entries | map(.value) | add // 0')
+          echo "Backend vulnerabilities: $backend_vulns"
+          echo "backend_vulns=$backend_vulns" >> $GITHUB_ENV
+        working-directory: backend
+
+      - name: Audit frontend dependencies
+        run: |
+          npm install
+          npm audit --json > frontend-audit.json || true
+          frontend_vulns=$(cat frontend-audit.json | jq '.metadata.vulnerabilities | to_entries | map(.value) | add // 0')
+          echo "Frontend vulnerabilities: $frontend_vulns"
+          echo "frontend_vulns=$frontend_vulns" >> $GITHUB_ENV
+        working-directory: frontend
+
+      # Total up all vulnerabilities and enforce the threshold.
+      # In production, you'd set this to 0 for critical/high.
+      - name: Check vulnerability threshold
+        run: |
+          total=$(( ${{ env.root_vulns }} + ${{ env.backend_vulns }} + ${{ env.frontend_vulns }} ))
+          echo "========================================"
+          echo "  SECURITY AUDIT SUMMARY"
+          echo "========================================"
+          echo "  Root:     ${{ env.root_vulns }} vulnerabilities"
+          echo "  Backend:  ${{ env.backend_vulns }} vulnerabilities"
+          echo "  Frontend: ${{ env.frontend_vulns }} vulnerabilities"
+          echo "  TOTAL:    $total vulnerabilities"
+          echo "  THRESHOLD: 3"
+          echo "========================================"
+
+          if [ "$total" -gt 3 ]; then
+            echo "SECURITY AUDIT FAILED: $total vulnerabilities exceed threshold of 3"
+            exit 1
+          else
+            echo "SECURITY AUDIT PASSED: $total vulnerabilities within threshold of 3"
+          fi
+
+      # Upload audit reports as artifacts for review
+      - name: Upload audit reports
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: security-audit-reports
+          path: |
+            root-audit.json
+            backend/backend-audit.json
+            frontend/frontend-audit.json
+          retention-days: 30
+
+  #  JOB 1: LINT & CODE QUALITY
+  #  Purpose: Catch syntax errors, style issues, bad imports
+  #  Why first: It's fast (seconds). Fail fast, save time.
 
   lint:
     name: Lint & Code Quality
-    runs-on: ubuntu-latest     # The machine type — a fresh Ubuntu VM
+    runs-on: ubuntu-latest # The machine type — a fresh Ubuntu VM
 
     steps:
       # Step 1: Get the code onto the machine
@@ -53,7 +137,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"         # Cache node_modules between runs (faster)
+          cache: "npm" # Cache node_modules between runs (faster)
 
       # Step 3: Install dependencies for the frontend
       - name: Install frontend dependencies
@@ -92,15 +176,14 @@ jobs:
           path: frontend/eslint-report.json
           retention-days: 14
 
-  #  JOB 2: UNIT TESTS                                       
-  #  Purpose: Test individual functions in isolation          
-  #  These are your backend utils tests (isValidEmail, etc.) 
-  
+  #  JOB 2: UNIT TESTS
+  #  Purpose: Test individual functions in isolation
+  #  These are your backend utils tests (isValidEmail, etc.)
+
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
-    needs: lint                # Wait for lint to pass first.
-                               # No point testing if code doesn't even lint.
+    needs: [lint, security-audit] # Wait for both lint and security audit to pass.
 
     steps:
       - name: Checkout code
@@ -122,16 +205,16 @@ jobs:
         run: npx vitest run --reporter=verbose
         working-directory: backend
 
-  #  JOB 4: FRONTEND                                         
-  #  Purpose: Verify the frontend app can be built for prod  
-  #  "It works on my machine" doesn't cut it in fintech.     
-  #  If it can't build in CI, it can't be deployed.          
-  #  Runs in PARALLEL with unit tests and API tests.         
+  #  JOB 4: FRONTEND
+  #  Purpose: Verify the frontend app can be built for prod
+  #  "It works on my machine" doesn't cut it in fintech.
+  #  If it can't build in CI, it can't be deployed.
+  #  Runs in PARALLEL with unit tests and API tests.
 
   frontend:
     name: Frontend Build
     runs-on: ubuntu-latest
-    needs: lint
+    needs: [lint, security-audit]
 
     steps:
       - name: Checkout code
@@ -147,17 +230,17 @@ jobs:
         run: npm install
         working-directory: frontend
 
-  #  JOB 5: CYPRESS E2E TESTS                                
-  #  Purpose: Test the full app like a real user would        
-  #  This is the most expensive job — it spins up the        
-  #  frontend, opens a headless browser, and clicks through  
-  #  the app. That's why it runs LAST, after everything else 
-  #  passes. No point running a 5-min browser test if a      
-  #  10-second unit test already failed.                     
-  #                                                          
-  #  needs: [unit-tests, frontend] means BOTH                  
-  #  must pass before this job starts.                        
-  
+  #  JOB 5: CYPRESS E2E TESTS
+  #  Purpose: Test the full app like a real user would
+  #  This is the most expensive job — it spins up the
+  #  frontend, opens a headless browser, and clicks through
+  #  the app. That's why it runs LAST, after everything else
+  #  passes. No point running a 5-min browser test if a
+  #  10-second unit test already failed.
+  #
+  #  needs: [unit-tests, frontend] means BOTH
+  #  must pass before this job starts.
+
   cypress:
     name: Cypress E2E Tests
     runs-on: ubuntu-latest
@@ -215,4 +298,3 @@ jobs:
       # In CI there's no screen, so we use Electron (built-in headless browser).
       - name: Run Cypress E2E tests
         run: npx cypress run --browser electron
-
