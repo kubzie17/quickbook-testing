@@ -9,4 +9,4 @@ npm error audit Original error: loadVirtual requires existing shrinkwrap file
     "detail": "Try creating one first with: npm i --package-lock-only\nOriginal error: loadVirtual requires existing shrinkwrap file"
   }
 }
-npm error A complete log of this run can be found in: /Users/mariya.jawaid/.npm/_logs/2026-04-30T14_24_03_983Z-debug-0.log
+npm error A complete log of this run can be found in: /Users/mariya.jawaid/.npm/_logs/2026-04-30T14_25_14_824Z-debug-0.log
