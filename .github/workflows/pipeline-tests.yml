@@ -28,13 +28,13 @@ jobs:
           moderate=$(jq '.metadata.vulnerabilities.moderate' root-audit-report.json)
           low=$(jq '.metadata.vulnerabilities.low' root-audit-report.json)
           vulnerabilities=$(jq '.metadata.vulnerabilities.total' root-audit-report.json)
-          echo"Total high vulnerabilities: $high"
-          echo"Total moderate vulnerabilities: $moderate"
-          echo"Total low vulnerabilities: $low"
+          echo "Total high vulnerabilities: $high"
+          echo "Total moderate vulnerabilities: $moderate"
+          echo "Total low vulnerabilities: $low"
           echo "Total vulnerabilities: $vulnerabilities"
 
-          if [ "vulnerabilities" -gt 3 ]; then
-          echo " Vulnerability count exceeds threshold of 3."
+          if [ "$vulnerabilities" -gt 3 ]; then
+            echo "Vulnerability count exceeds threshold of 3."
           fi
 
       - name: Install backend deps 
