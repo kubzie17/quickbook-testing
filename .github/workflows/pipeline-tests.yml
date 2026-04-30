@@ -22,11 +22,11 @@ jobs:
 
       - name: check for vulnerabilities
         run: |
+          npm audit || true
           vuln_count=$(npm audit --json | jq '.metadata.vulnerabilities.moderate + .metadata.vulnerabilities.high')
           echo "vulnerabilities found: $vuln_count"
           if [ "$vuln_count" -gt 3 ]; then
             echo "vulnerability count ($vuln_count) exceeds threshold of 3"
-            npm audit || true
             exit 1
           fi
 
