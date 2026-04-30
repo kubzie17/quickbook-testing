@@ -1,7 +1,6 @@
 echo "Running check for vulnerabilities in the pipeline and fail if theres more than 3 before push"
 
-audit=$(npm audit --json || true)
-vulnerabilities=$(jq '.metadata.vulnerabilities.total')
+vulnerabilities=$(npm audit --json | jq '.metadata.vulnerabilities.total')
 echo "Found this many vunlnerabites: $vulnerabilities"
 if [ "$vulnerabilities" -gt 3 ]; then
     echo "Too many vulnerabilities"
@@ -9,8 +8,6 @@ if [ "$vulnerabilities" -gt 3 ]; then
 else 
     echo "Vulnerability count is fine"
 fi
-
-
 
 
 
