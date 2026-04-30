@@ -1,8 +1,9 @@
-name: Pipeline Testing
+name: Broken Pipeline - Missing Unit Tests
 
 on:
   push:
-    branches: [ quick-book-lucy ]
+    branches: [ main ]
+  pull_request:
 
 jobs:
   test:
@@ -10,47 +11,42 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 22
 
       - name: Install root dependencies
         run: npm install
 
-      - name: Install backend deps
+      - name: Check for vulnerabilities in root
+        run: |
+          npm audit --json > root-audit-report.json || true
+          vulnerabilities=$(jq '.metadata.vulnerabilities.total' root-audit-report.json)
+          echo "Total vulnerabilities: $vulnerabilities"
+
+          if [ "vulnerabilities" -gt 3 ]; then
+          echo " Vulnerability count exceeds threshold of 3."
+          fi
+
+      - name: Install backend deps 
         run: |
           cd backend
           npm install
-      - name: Run unit tests
+
+      - name: Run backend unit tests
+
         run: |
           cd backend
           npm test
-      # --------------------------
-      # ESLINT
-      # --------------------------
-      - name: Install frontend deps for linting
-        run: |
-          cd frontend
-          npm install
-      - name: Run eslint
-        run: |
-          cd frontend
-          npm i eslint
-          npx eslint . -f json -o eslint-report.json || true
-          errors=$(cat eslint-report.json | jq '[.[].errorCount] | add')
-          echo "Total eslint error: $errors"
-          if [ "$errors" -ge 10]; then
-            echo " eslint failed: error count ($errors) exceeds threshold of 10"
-            exit -1
-          else
-            echo "eslint passed: error count ($errors) is less than threshold of 10"
-          fi
-      # --------------------------
-      # API TESTS (NEWMAN)
-      # --------------------------
+
+
+      # INTENTIONAL BUG:
+      # Backend unit tests are missing from this pipeline.
+      # The pipeline can pass even if the unit tests are broken.
+
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
 
@@ -61,10 +57,12 @@ jobs:
           -e postman/quickbook-render.postman_environment.json \
           -r cli,htmlextra \
           --reporter-htmlextra-export reports/api-report.html
-      - name: Start backend
+
+      - name: Install frontend deps
         run: |
-          cd backend
-          node server.js &
+          cd frontend
+          npm install
+
       - name: Start frontend
         run: |
           cd frontend
@@ -91,14 +89,14 @@ jobs:
 
       - name: Upload API report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: api-report
           path: reports/api-report.html
 
       - name: Upload Cypress screenshots
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
           path: cypress/screenshots
