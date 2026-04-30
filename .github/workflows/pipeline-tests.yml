@@ -25,6 +25,16 @@ jobs:
       # Backend unit tests are missing from this pipeline.
       # The pipeline can pass even if the unit tests are broken.
 
+      - name: Install backend deps
+        run: |
+          cd backend
+          npm install
+      
+      - name: Run unit tests 
+        run: |
+          cd backend 
+          npm test
+
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
 
