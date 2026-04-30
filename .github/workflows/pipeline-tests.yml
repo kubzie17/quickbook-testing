@@ -5,16 +5,18 @@ on:
     branches: [ task-one ]
   pull_request:
 
+env: FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true
+
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
 
@@ -24,7 +26,7 @@ jobs:
       # TASK 2 
       # VULNERABILITY SCAN:
       # npm audit checks all installed dependencies for known security vulnerabilities.
-      # --json outputs the results in JSON format so we can parse them.
+      # json outputs the results in JSON format so can parse them.
       # || true prevents the step from failing immediately (npm audit exits non-zero if it finds issues).
       # We use jq to extract the count of high and critical severity vulnerabilities.
       # If that count is 3 or more, we fail the pipeline with exit 1.
@@ -100,14 +102,14 @@ jobs:
 
       - name: Upload API report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: api-report
           path: reports/api-report.html
 
       - name: Upload Cypress screenshots
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: cypress-screenshots
           path: cypress/screenshots
