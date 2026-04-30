@@ -9,26 +9,111 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout repo
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v5
 
-      - name: Install node
-        uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v6
         with:
           node-version: 22
-
-      #install root dependencies 
-      - name: install root dependencies
+          
+      # -------------------------
+      # ROOT DEPENDENCIES
+      # -------------------------
+      - name: Install root dependencies
         run: npm install
 
-      #install backend dependencies 
-      - name: install backend dependencies
+      # -------------------------
+      # UNIT TESTS (JEST)
+      # -------------------------
+      - name: Install backend deps
         run: |
           cd backend
           npm install
 
-      #install frontend dependencies 
-      - name: install frontend dependencies
+      - name: Run unit tests
+        run: |
+          cd backend
+          npm test
+
+      - name: run eslint
+        run: |
+          cd frontend
+          npm i eslint
+          npx eslint . -f json -o eslint-report.json || true
+
+          errors=$(cat eslint-report.json | jq '[.[].errorCount] | add')
+          echo "Total eslint error: $errors"
+
+          if [ "$errors" -ge 10]; then
+            echo " eslint failed: error count ($errors) exceeds threshold of 10"
+            exit -1
+          else
+            echo "eslint passed: error count ($errors) is less than threshold of 10"
+          fi
+
+      # -------------------------
+      # API TESTS (NEWMAN)
+      # -------------------------
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Run API tests
+        run: |
+          mkdir -p reports
+          newman run postman/quickbook-api.postman_collection.json \
+          -e postman/quickbook-render.postman_environment.json \
+          -r cli,htmlextra \
+          --reporter-htmlextra-export reports/api-report.html
+
+      # -------------------------
+      # FRONTEND (VITE)
+      # -------------------------
+      - name: Install frontend deps
         run: |
           cd frontend
           npm install
+
+      - name: Start frontend
+        run: |
+          cd frontend
+          npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
+        env:
+          CI: true
+          VITE_API_BASE_URL: https://quickbook-testing.onrender.com
+
+      - name: Wait for frontend
+        run: npx wait-on http://localhost:5173 --timeout 120000
+
+      - name: Show frontend log
+        if: always()
+        run: cat frontend.log
+
+      # -------------------------
+      # CYPRESS TESTS
+      # -------------------------
+      - name: Install Cypress binary
+        run: npx cypress install
+
+      - name: Verify Cypress
+        run: npx cypress verify
+
+      - name: Run Cypress tests
+        run: npx cypress run --browser electron
+
+      # -------------------------
+      # UPLOAD REPORTS
+      # -------------------------
+      - name: Upload API report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: api-report
+          path: reports/api-report.html
+
+      - name: Upload Cypress screenshots
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
