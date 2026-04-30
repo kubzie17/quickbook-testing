@@ -48,11 +48,11 @@ jobs:
           errors=$(cat eslint-report.json | jq '[.[].errorCount] | add')
           echo "Total eslint errors: $errors"
 
-          if [ "$errors" -ge 10 ]; then
-            echo "eslint failed: error count ($errors) exceeds threshold of 10"
+          if [ "$errors" -ge 5 ]; then
+            echo "eslint failed: error count ($errors) exceeds threshold of 5"
             exit 1
           else
-            echo "eslint passed: error count ($errors) is less than threshold of 10"
+            echo "eslint passed: error count ($errors) is less than threshold of 5"
           fi
 
       - name: Install Newman
