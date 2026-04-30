@@ -28,15 +28,15 @@ jobs:
           moderate=$(jq '.metadata.vulnerabilities.moderate' root-audit-report.json)
           low=$(jq '.metadata.vulnerabilities.low' root-audit-report.json)
           total=$(jq '.metadata.vulnerabilities.total' root-audit-report.json)
-          echo "🚨 Total critical vulnerabilities:🚨 $critical"
-          echo "⚠️ Total moderate vulnerabilities:⚠️ $moderate"
-          echo "🔋 Total low vulnerabilities:🔋 $low"
+          echo "🚨 Total critical vulnerabilities: $critical"
+          echo "⚠️ Total moderate vulnerabilities: $moderate"
+          echo "🔋 Total low vulnerabilities: $low"
 
           if [ "$total" -gt 3 ]; then
-            echo "‼️($total) total vulnerabilities found, exceeding threshold of 3.‼️ ($critical) critical, ($moderate) moderate, ($low) low. Failing the build."
+            echo "‼️($total) total vulnerabilities found, exceeding threshold of 3.‼ ($critical) critical, ($moderate) moderate, ($low) low. Failing the build."
             exit 1
           else
-            echo "✅Vulnerabilities are within acceptable limits:✅ ($total) <= 3"
+            echo "✅Vulnerabilities are within acceptable limits: ($total) <= 3"
           fi
 
 #Backend Install
@@ -53,15 +53,15 @@ jobs:
           moderate=$(jq '.metadata.vulnerabilities.moderate' backend-audit-report.json)
           low=$(jq '.metadata.vulnerabilities.low' backend-audit-report.json)
           total=$(jq '.metadata.vulnerabilities.total' backend-audit-report.json)
-          echo "🚨 Total critical vulnerabilities:🚨 $critical"
-          echo "⚠️ Total moderate vulnerabilities:⚠️ $moderate"
-          echo "🔋 Total low vulnerabilities:🔋 $low"
+          echo "🚨 Total critical vulnerabilities: $critical"
+          echo "⚠️ Total moderate vulnerabilities: $moderate"
+          echo "🔋 Total low vulnerabilities: $low"
 
           if [ "$total" -gt 3 ]; then
-            echo "‼️($total) total vulnerabilities found in backend, exceeding threshold of 3.‼️ ($critical) critical, ($moderate) moderate, ($low) low. Failing the build."
+            echo "‼️($total) total vulnerabilities found in backend, exceeding threshold of 3.‼ ($critical) critical, ($moderate) moderate, ($low) low. Failing the build."
             exit 1
           else
-            echo "✅Vulnerabilities are within acceptable limits:✅ ($total) <= 3"
+            echo "✅Vulnerabilities are within acceptable limits: ($total) <= 3"
           fi
       
       
@@ -80,15 +80,15 @@ jobs:
           moderate=$(jq '.metadata.vulnerabilities.moderate' frontend-audit-report.json)
           low=$(jq '.metadata.vulnerabilities.low' frontend-audit-report.json)
           total=$(jq '.metadata.vulnerabilities.total' frontend-audit-report.json)
-          echo "🚨 Total critical vulnerabilities:🚨 $critical"
-          echo "⚠️ Total moderate vulnerabilities:⚠️ $moderate"
-          echo "🔋 Total low vulnerabilities:🔋 $low"
+          echo "🚨 Total critical vulnerabilities: $critical"
+          echo "⚠️ Total moderate vulnerabilities: $moderate"
+          echo "🔋 Total low vulnerabilities: $low"
 
           if [ "$total" -gt 3 ]; then
-            echo "‼️($total) total vulnerabilities found in frontend, exceeding threshold of 3.‼️ ($critical) critical, ($moderate) moderate, ($low) low. Failing the build."
+            echo "‼️($total) total vulnerabilities found in frontend, exceeding threshold of 3.‼ ($critical) critical, ($moderate) moderate, ($low) low. Failing the build."
             exit 1
           else
-            echo "✅Vulnerabilities are within acceptable limits:✅ ($total) <= 3"
+            echo "✅Vulnerabilities are within acceptable limits: ($total) <= 3"
           fi
     
      
