@@ -6,7 +6,7 @@
 # Run unit tests first
 # Using a subshell (...) so the cd doesn't affect the rest of the script
 echo "Running unit tests before commit..."
-(cd backend && npm test)
+(cd backend && npm test || exit 1)
 
 # Run lint-staged — only lints the files you're actually committing,
 # not the entire project. Fast and targeted.
