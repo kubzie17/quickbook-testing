@@ -45,3 +45,18 @@ if [ "$total" -gt 3 ]; then
 fi
 
 echo "Security audit passed"
+
+# 3. Build frontend
+# "npm run build" compiles the React app for production.
+# This catches things that work in dev mode but break in production:
+#   - Missing imports (dev mode is more forgiving)
+#   - JSX syntax errors
+#   - Environment variable issues
+#   - Dead code that breaks when tree-shaken
+# If it can't build here, it won't build in CI either.
+echo ""
+echo "Building frontend to check for syntax/build errors..."
+(cd frontend && npm run build)
+
+echo ""
+echo "All pre-push checks passed"
