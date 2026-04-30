@@ -1,8 +1,16 @@
+# ============================================================
+# THURS 30 APRIL - TASK 1: Fix broken pipeline
+# Fixed: deprecated actions (v4 -> v6/v7)
+# Fixed: added missing backend deps install + unit tests
+# Fixed: added missing backend server start
+# ============================================================
+
 name: Pipeline Testing
 
 on:
   push:
-    branches: [newbranch]
+    branches: [ main ]
+  pull_request:
 
 jobs:
   test:
@@ -20,6 +28,9 @@ jobs:
       - name: Install root dependencies
         run: npm install
 
+      # --------------------------
+      # UNIT TESTS (JEST) - FIX: was missing from broken pipeline
+      # --------------------------
       - name: Install backend deps
         run: |
           cd backend
@@ -33,7 +44,7 @@ jobs:
       # --------------------------
       # ESLINT
       # --------------------------
-      - name: Install frontend deps for linting
+      - name: Install frontend deps
         run: |
           cd frontend
           npm install
@@ -45,13 +56,32 @@ jobs:
           npx eslint . -f json -o eslint-report.json || true
 
           errors=$(cat eslint-report.json | jq '[.[].errorCount] | add')
-          echo "Total eslint error: $errors"
+          echo "Total eslint errors: $errors"
 
-          if [ "$errors" -ge 10]; then
-            echo " eslint failed: error count ($errors) exceeds threshold of 10"
-            exit -1
+          if [ "$errors" -ge 10 ]; then
+            echo "eslint failed: error count ($errors) exceeds threshold of 10"
+            exit 1
           else
             echo "eslint passed: error count ($errors) is less than threshold of 10"
+          fi
+
+      # ============================================================
+      # THURS 30 APRIL - TASK 2: Vulnerability check
+      # Runs npm audit and fails if more than 3 vulnerabilities
+      # ============================================================
+      - name: Run vulnerability check
+        run: |
+          echo "Running npm audit for vulnerabilities..."
+          npm audit --json > audit-report.json || true
+
+          vuln_count=$(cat audit-report.json | jq '.metadata.vulnerabilities | to_entries | map(.value) | add')
+          echo "Total vulnerabilities found: $vuln_count"
+
+          if [ "$vuln_count" -gt 3 ]; then
+            echo "Vulnerability check FAILED: $vuln_count vulnerabilities found (threshold: 3)"
+            exit 1
+          else
+            echo "Vulnerability check PASSED: $vuln_count vulnerabilities found (threshold: 3)"
           fi
 
       # --------------------------
@@ -68,6 +98,9 @@ jobs:
           -r cli,htmlextra \
           --reporter-htmlextra-export reports/api-report.html
 
+      # --------------------------
+      # E2E TESTS (CYPRESS)
+      # --------------------------
       - name: Start backend
         run: |
           cd backend
@@ -97,6 +130,9 @@ jobs:
       - name: Run Cypress tests
         run: npx cypress run --browser electron
 
+      # --------------------------
+      # ARTIFACTS
+      # --------------------------
       - name: Upload API report
         if: always()
         uses: actions/upload-artifact@v7
