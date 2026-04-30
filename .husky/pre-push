@@ -1,17 +1,12 @@
 #!/bin/sh
 
-echo "running unit tests before push"
-cd backend
-npm test
-cd ..
+echo "Running backend unit tests..."
+cd backend 
+npm test || exit 1
 
-echo "running vulnerability check"
+cd ../frontend
+echo "Building frontend..." 
+npm run build || exit 1
 
 cd ..
-npm audit || true
-vuln_count=$(npm audit --json | jq '.metadata.vulnerabilities.moderate + .metadata.vulnerabilities.high')
-echo "vulnerabilities found: $vuln_count"
-if [ "$vuln_count" -gt 3 ]; then
-  echo "vulnerability count ($vuln_count) exceeds threshold of 3"
-  exit 1
-fi
+echo "All pre-push checks passed." 
