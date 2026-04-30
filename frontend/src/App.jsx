@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import BookAppointment from "./pages/BookAppointment";
 import MyBookings from "./pages/MyBookings";
 import Services from "./pages/Services";
+import DebugPractice from "./pages/DebugPractice"
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
         <Link to="/book">Book Appointment</Link>
         <Link to="/bookings">My Bookings</Link>
         <Link to="/services">Services Provided</Link>
+        <Link to="/debug">Debug</Link>
       </nav>
 
       <Routes>
@@ -24,6 +26,7 @@ export default function App() {
         <Route path="/book" element={<BookAppointment />} />
         <Route path="/bookings" element={<MyBookings />} />
         <Route path="/services" element={<Services />} />
+        <Route path="/debug" element={<DebugPractice />} />
       </Routes>
     </div>
   );

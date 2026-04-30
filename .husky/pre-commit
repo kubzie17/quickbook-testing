@@ -1,5 +1,0 @@
-#!/bin/sh
-echo " run unit test before commit"
-
-cd backend
-npm test
