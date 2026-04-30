@@ -1,7 +1,45 @@
 # ── PRE-PUSH HOOK ────────────────────────────────────────────
 # Runs BEFORE code is pushed to the remote repository.
 # This is your last line of defence before code leaves your machine.
-# If tests fail, the push is blocked.
+# If any check fails, the push is blocked.
 
+# 1. Run unit tests
 echo "Running unit tests before push..."
-cd backend && npx vitest run
+(cd backend && npx vitest run)
+
+# 2. Run security audit
+# Checks all dependencies for known vulnerabilities (CVEs).
+# Uses the same threshold logic as the CI pipeline.
+# Critical/High = instant block. Moderate+Low = threshold of 3.
+echo ""
+echo "Running security audit before push..."
+
+root_vulns=$(npm audit --json 2>/dev/null | jq '.metadata.vulnerabilities // {}')
+back_vulns=$(cd backend && npm audit --json 2>/dev/null | jq '.metadata.vulnerabilities // {}')
+front_vulns=$(cd frontend && npm audit --json 2>/dev/null | jq '.metadata.vulnerabilities // {}')
+
+total_crit=$(echo "$root_vulns $back_vulns $front_vulns" | jq -s 'map(.critical // 0) | add')
+total_high=$(echo "$root_vulns $back_vulns $front_vulns" | jq -s 'map(.high // 0) | add')
+total_mod=$(echo "$root_vulns $back_vulns $front_vulns" | jq -s 'map(.moderate // 0) | add')
+total_low=$(echo "$root_vulns $back_vulns $front_vulns" | jq -s 'map(.low // 0) | add')
+total=$(( total_crit + total_high + total_mod + total_low ))
+
+echo ""
+echo "Security Audit: C:$total_crit H:$total_high M:$total_mod L:$total_low (total: $total, threshold: 3)"
+
+if [ "$total_crit" -gt 0 ]; then
+  echo "BLOCKED: Critical vulnerabilities found"
+  exit 1
+fi
+
+if [ "$total_high" -gt 0 ]; then
+  echo "BLOCKED: High vulnerabilities found"
+  exit 1
+fi
+
+if [ "$total" -gt 3 ]; then
+  echo "BLOCKED: $total vulnerabilities exceed threshold of 3"
+  exit 1
+fi
+
+echo "Security audit passed"
