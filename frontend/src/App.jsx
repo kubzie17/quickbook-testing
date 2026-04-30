@@ -16,6 +16,7 @@ export default function App() {
         <Link to="/book">Book Appointment</Link>
         <Link to="/bookings">My Bookings</Link>
         <Link to="/services">Services Provided</Link>
+        <Link to="/debug">Debug</Link>
       </nav>
 
       <Routes>
