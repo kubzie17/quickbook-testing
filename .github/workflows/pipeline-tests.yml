@@ -36,7 +36,7 @@ jobs:
           audit_output=$(npm audit --json || true)
           
           echo "Vulnerabilities Summary"
-          echo "audit_output" | jq '.metadata.vulnerabilities'
+          echo "$audit_output" | jq '.metadata.vulnerabilities'
 
           echo ""
           echo "Critical"
