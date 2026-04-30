@@ -10,7 +10,7 @@ describe("validateLogin", () => {
     const result = validateLogin("student@example.com", "Password123");
 
     expect(result.success).toBe(true);
-    expect(result.message).toBe("Login successfull");
+    expect(result.message).toBe("Login successful");
     expect(result.user.email).toBe("student@example.com");
   });
 
