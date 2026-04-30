@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/h"
+
+audit_output=$(npm audit --json || true)
+          
+echo "Vulnerabilities Summary"
+echo "audit_output" | jq ".metadata.vulnerabilities"
+
+echo ""
+echo "Critical"
+echo "$audit_output" | jq '[.vulnerabilities | to_entries[] | select(.value.severity == "critical") | .key] | if length == 0 then "None" else .[] end'
+
+echo ""
+echo "Moderate"
+echo "$audit_output" | jq '[.vulnerabilities | to_entries[] | select(.value.severity == "moderate") | .key] | if length == 0 then "None" else .[] end'
+
+echo ""
+echo "Low"
+echo "$audit_output" | jq '[.vulnerabilities | to_entries[] | select(.value.severity == "low") | .key] | if length == 0 then "None" else .[] end'
+
+vuln_count=$(echo "$audit_output" | jq '.metadata.vulnerabilities.high + .metadata.vulnerabilities.critical')
+echo "Total high/critical vulnerabilities: $vuln_count"
+
+if [ "$vuln_count" -ge 10 ]; then
+echo "Audit failed: $vuln_count high/critical vulnerabilities exceeds threshold of 10"
+exit 1
+else
+echo "Audit passed: $vuln_count is within threshold"
+fi
