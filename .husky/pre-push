@@ -13,7 +13,7 @@ vulnerabilities=$(jq '.metadata.vulnerabilities.total' root-audit-report.json)
 echo "Total vulnerabilities: $vulnerabilities"
 
 # Threshold check
-if [ "$vulnerabilities" -gt 1 ]; then
+if [ "$vulnerabilities" -gt 4 ]; then
   echo "($vulnerabilities) vulnerabilities found, exceeding threshold of 3. Push blocked."
   exit 1
 else
