@@ -1,3 +1,8 @@
+echo "Running unit tests before push"
+cd backend
+npm test
+
+echo ""
 echo "Running npm audit for vulnerabilities..."
 
 audit_output=$(npm audit --json || true)
