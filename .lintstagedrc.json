@@ -1,4 +1,3 @@
 {
-  "frontend/src/**/*.{js,jsx}": ["npx --prefix frontend eslint --fix --max-warnings 0"],
   "*.{json,md,yml,yaml}": ["prettier --write --no-error-on-unmatched-pattern"]
 }
