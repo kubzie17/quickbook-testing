@@ -163,7 +163,7 @@ jobs:
           # These are often transitive dependencies you can't directly fix
           # (like Cypress depending on a vulnerable uuid package).
           if [ "$total" -gt 3 ]; then
-            echo "::error::Security audit FAILED — $total vulnerabilities exceed threshold of 3"
+            echo "::error::Security audit FAILED — $total vulnerabilities exceed threshold of 3ç"
             exit 1
           else
             echo "Security audit PASSED — $total vulnerabilities within threshold"
