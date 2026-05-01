@@ -18,7 +18,7 @@ export default function DebugPractice() {
       <p>This page is used for debugging Cypress and frontend failures.</p>
 
       <p data-testid="count-value">Count: {count}</p>
-      <button data-testid="increase-count" onClick={increaseCount}>
+      <button data-testid="add-count" onClick={increaseCount}>
         Increase
       </button>
       <button data-testid="reset-count" onClick={resetCount}>
