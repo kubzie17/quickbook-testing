@@ -5,7 +5,7 @@ export default function DebugPractice() {
   const [name, setName] = useState("");
 
   function increaseCount() {
-    setCount(count + 2);
+    setCount(count + 1);
   }
 
   function resetCount() {
