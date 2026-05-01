@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "Running backend unit tests..."
+cd backend
+npm test || exit 1
+
+cd ../frontend
+npm run build || exit 1
+
+cd ..
+echo "Running Cypress E2E tests..."
+npx cypress run --browser electron || exit 1
+
+echo "All pre-push checks passed."
