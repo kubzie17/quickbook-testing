@@ -1,0 +1,12 @@
+#!/bin/sh
+echo "running backend unit tests before commit..."
+
+cd backend
+npm test
+
+if [ $? -ne 0 ]; then
+  echo "commit blocked: backend unit tests failed."
+  exit 1
+fi
+
+echo "backend unit tests passed. commit allowed."

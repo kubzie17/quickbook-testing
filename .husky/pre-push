@@ -1,0 +1,11 @@
+#!/bin/sh
+echo "running backend unit tests..."
+cd backend
+npm test || exit 1
+
+cd ../frontend
+echo "building frontend..."
+npm run build || exit 1
+
+cd ..
+echo "all pre-push checks passed."
