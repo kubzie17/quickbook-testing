@@ -1,13 +1,68 @@
 # ── PRE-COMMIT HOOK ──────────────────────────────────────────
-# Runs BEFORE a commit is created.
-# If any check fails, the commit is blocked.
-# This catches problems BEFORE they reach the remote repo.
+# Runs BEFORE every commit. Must be FAST (< 2 seconds).
+#
+# ── DESIGN PHILOSOPHY ────────────────────────────────────────
+# Developers commit frequently — sometimes 10+ times per hour.
+# Every second of delay here multiplies across the whole team.
+# In fintech, we want safety, but we also want developers to
+# commit often (small commits = easier code review = fewer bugs).
+#
+# WHAT BELONGS HERE:
+#   - Unit tests (fast, no network, catches logic bugs)
+#   - Lint-staged (only checks files you're committing, not everything)
+#   - Commit message validation (via commit-msg hook, not here)
+#
+# WHAT DOES NOT BELONG HERE:
+#   - Frontend build (takes 2-3 seconds, runs on every commit — too much)
+#   - Cypress (needs a running server, takes 25+ seconds — way too much)
+#   - Security audit (hits the network, takes 5-10 seconds — too slow)
+#
+# RULE OF THUMB: If it takes > 2 seconds, it belongs in pre-push or CI.
+# ─────────────────────────────────────────────────────────────
 
-# Run unit tests first
-# Using a subshell (...) so the cd doesn't affect the rest of the script
-echo "Running unit tests before commit..."
-(cd backend && npm test || exit 1)
+echo "╔══════════════════════════════════════╗"
+echo "║       PRE-COMMIT CHECKS              ║"
+echo "╚══════════════════════════════════════╝"
+echo ""
 
-# Run lint-staged — only lints the files you're actually committing,
-# not the entire project. Fast and targeted.
-npx lint-staged
+# ── CHECK 1: Backend unit tests ──────────────────────────────
+# WHY HERE: They run in < 1 second and catch the most common bugs
+# (broken utility functions, wrong return values, missing edge cases).
+# If these fail, the code isn't worth committing.
+#
+# Using a subshell (...) so the cd doesn't affect lint-staged below.
+echo "1/2  Running backend unit tests..."
+if (cd backend && npm test); then
+  echo "     ✅ Unit tests passed"
+else
+  echo ""
+  echo "     ❌ Unit tests FAILED — commit blocked"
+  echo "     Fix the failing tests before committing."
+  exit 1
+fi
+
+echo ""
+
+# ── CHECK 2: Lint staged files ───────────────────────────────
+# WHY HERE: Only checks files you're actually committing (not the
+# whole project). This means it's fast AND targeted.
+# Catches: formatting issues in JSON/YAML/markdown.
+#
+# In fintech, consistent formatting matters because:
+#   - Code reviews are faster when formatting is consistent
+#   - Merge conflicts are reduced when everyone formats the same way
+#   - Audit trails are cleaner (no "fix formatting" noise commits)
+echo "2/2  Linting staged files..."
+if npx lint-staged; then
+  echo "     ✅ Lint-staged passed"
+else
+  echo ""
+  echo "     ❌ Lint-staged FAILED — commit blocked"
+  echo "     Fix the formatting issues before committing."
+  exit 1
+fi
+
+echo ""
+echo "══════════════════════════════════════"
+echo "  All pre-commit checks passed"
+echo "══════════════════════════════════════"

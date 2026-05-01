@@ -1,87 +1,170 @@
 # ── PRE-PUSH HOOK ────────────────────────────────────────────
 # Runs BEFORE code is pushed to the remote repository.
-# This is your last line of defence before code leaves your machine.
-# If any check fails, the push is blocked.
+# This is your LAST LINE OF DEFENCE before code leaves your machine.
 #
-# ── EXERCISE 12: SHOULD CYPRESS RUN IN PRE-PUSH? ────────────
+# ── DESIGN PHILOSOPHY ────────────────────────────────────────
+# Pushes happen less often than commits (maybe 2-5 times per day).
+# So we can afford to spend more time here — up to 30 seconds is
+# acceptable because you're about to share code with the team.
 #
-# This hook now includes Cypress E2E tests after unit tests and
-# frontend build. The goal is to evaluate whether this is a good
-# idea in practice.
+# WHAT BELONGS HERE:
+#   - Unit tests (yes, again — catches anything committed with --no-verify)
+#   - Frontend build (catches import errors, JSX issues, env problems)
+#   - Security audit (catches vulnerable dependencies before they reach CI)
+#   - Targeted Cypress subset (fast, no API dependency)
 #
-# PROS of running Cypress locally:
-#   - Catches E2E failures before they reach CI
-#   - Faster feedback than waiting for a remote pipeline
-#   - Saves CI minutes (which cost money on paid plans)
+# WHAT DOES NOT BELONG HERE:
+#   - Full Cypress suite (25+ seconds, needs remote API, network-dependent)
+#   - Full Cypress belongs in CI where it runs in the background
 #
-# CONS of running Cypress locally:
-#   - Requires the frontend dev server to be running
-#   - Full suite takes 1-2+ minutes (slow for every push)
-#   - Tests that hit the remote API (Render) depend on network
-#   - Render cold starts can cause timeouts that aren't your fault
-#   - Blocks the developer while tests run
+# ── FINTECH/INSURTECH CONSIDERATIONS ────────────────────────
+# In regulated industries, every push to a shared branch is a potential
+# deployment candidate. The pre-push hook ensures:
+#   1. Code logic is correct (unit tests)
+#   2. Code compiles for production (frontend build)
+#   3. No known critical vulnerabilities (security audit)
+#   4. Core UI behaviour works (targeted Cypress)
 #
-# VERDICT:
-#   Running the FULL Cypress suite in pre-push is usually too slow
-#   and unreliable for everyday use. A better approach is:
-#     - Pre-push: unit tests + build (fast, no network dependency)
-#     - CI pipeline: full Cypress suite (runs in background, doesn't block you)
-#     - Optional: run a SMALL subset of Cypress locally (e.g. debug-practice
-#       tests that don't need API calls)
-#
-# For this exercise, we include the full suite to observe the timing
-# and reliability issues firsthand.
+# This mirrors the "shift left" principle — catch problems as early
+# as possible, where they're cheapest to fix.
 # ─────────────────────────────────────────────────────────────
 
-# 1. Run backend unit tests
-# These are fast (< 1 second) and have no external dependencies.
-# If your utility functions are broken, everything else will be too.
-# Using a subshell (...) so the cd doesn't affect later commands.
-echo "Running backend unit tests..."
-(cd backend && npm test || exit 1)
-
-# 2. Build the frontend
-# Catches missing imports, JSX syntax errors, and env variable issues.
-# Takes ~2-3 seconds locally. No network dependency.
+echo "╔══════════════════════════════════════╗"
+echo "║        PRE-PUSH CHECKS               ║"
+echo "╚══════════════════════════════════════╝"
 echo ""
-echo "Building frontend..."
-(cd frontend && npm run build || exit 1)
 
-# 3. Run Cypress E2E tests
-# ⚠️  THIS IS THE PART TO EVALUATE.
-#
-# For Cypress to work, the frontend dev server MUST be running.
-# If it's not running, Cypress will fail with:
-#   "cy.visit() failed trying to load http://localhost:5173"
-#
-# This means the developer must:
-#   a) Have the frontend running in another terminal, OR
-#   b) The hook must start it (adds complexity and time)
-#
-# We start the dev server here, wait for it, run tests, then kill it.
-# This adds ~15-30 seconds to every push.
-echo ""
-echo "Starting frontend dev server for Cypress..."
-(cd frontend && npm run dev -- --host 0.0.0.0 > /dev/null 2>&1 &)
-
-# Wait for the dev server to be ready.
-# --timeout 30000 = 30 seconds. If it takes longer, something is wrong.
-npx wait-on http://localhost:5173 --timeout 30000
-
-echo "Running Cypress E2E tests..."
-npx cypress run --browser electron
-CYPRESS_EXIT=$?
-
-# Clean up: kill the dev server we started.
-# lsof finds the process on port 5173, kill stops it.
-kill $(lsof -t -i:5173) 2>/dev/null
-
-# If Cypress failed, block the push.
-if [ $CYPRESS_EXIT -ne 0 ]; then
+# ── CHECK 1: Backend unit tests (~1 second) ──────────────────
+# WHY AGAIN: Someone might have used --no-verify on a commit,
+# or merged a branch that broke something. This is the safety net.
+echo "1/4  Running backend unit tests..."
+if (cd backend && npm test); then
+  echo "     ✅ Unit tests passed"
+else
   echo ""
-  echo "BLOCKED: Cypress E2E tests failed"
+  echo "     ❌ Unit tests FAILED — push blocked"
+  echo "     Fix the failing tests before pushing."
   exit 1
 fi
 
 echo ""
-echo "All pre-push checks passed."
+
+# ── CHECK 2: Frontend production build (~2-3 seconds) ────────
+# WHY HERE (not pre-commit): Takes 2-3 seconds, which is fine for
+# a push but too slow for every commit. Catches problems that only
+# appear in production builds:
+#   - Missing imports (dev mode is more forgiving)
+#   - Tree-shaking failures (dead code removal breaks something)
+#   - Environment variable issues
+#   - JSX syntax errors that dev mode auto-recovers from
+echo "2/4  Building frontend for production..."
+if (cd frontend && npm run build > /dev/null 2>&1); then
+  echo "     ✅ Frontend build passed"
+else
+  echo ""
+  echo "     ❌ Frontend build FAILED — push blocked"
+  echo "     Run 'cd frontend && npm run build' to see the error."
+  exit 1
+fi
+
+echo ""
+
+# ── CHECK 3: Security audit (~5-10 seconds) ──────────────────
+# WHY HERE (not pre-commit): Hits the network to check the GitHub
+# Advisory Database. Takes 5-10 seconds. Too slow for every commit,
+# but essential before sharing code.
+#
+# TIERED SEVERITY RULES:
+#   - Critical/High: zero tolerance — push blocked immediately
+#   - Moderate/Low: threshold of 3 — allows known accepted risks
+#     (like the Cypress/uuid transitive dependency)
+#
+# WHY A THRESHOLD?
+#   In fintech, you'd ideally have zero vulnerabilities. But in
+#   practice, transitive dependencies (packages YOUR packages depend
+#   on) often have moderate issues you can't directly fix. The
+#   threshold acknowledges this reality while still catching new problems.
+echo "3/4  Running security audit..."
+
+root_vulns=$(npm audit --json 2>/dev/null | jq '.metadata.vulnerabilities // {}')
+back_vulns=$(cd backend && npm audit --json 2>/dev/null | jq '.metadata.vulnerabilities // {}')
+front_vulns=$(cd frontend && npm audit --json 2>/dev/null | jq '.metadata.vulnerabilities // {}')
+
+total_crit=$(echo "$root_vulns $back_vulns $front_vulns" | jq -s 'map(.critical // 0) | add')
+total_high=$(echo "$root_vulns $back_vulns $front_vulns" | jq -s 'map(.high // 0) | add')
+total_mod=$(echo "$root_vulns $back_vulns $front_vulns" | jq -s 'map(.moderate // 0) | add')
+total_low=$(echo "$root_vulns $back_vulns $front_vulns" | jq -s 'map(.low // 0) | add')
+total=$(( total_crit + total_high + total_mod + total_low ))
+
+echo "     Audit: C:$total_crit H:$total_high M:$total_mod L:$total_low (total: $total)"
+
+if [ "$total_crit" -gt 0 ]; then
+  echo ""
+  echo "     ❌ CRITICAL vulnerabilities found — push blocked"
+  echo "     Run 'npm audit' to see details."
+  exit 1
+fi
+
+if [ "$total_high" -gt 0 ]; then
+  echo ""
+  echo "     ❌ HIGH vulnerabilities found — push blocked"
+  echo "     Run 'npm audit' to see details."
+  exit 1
+fi
+
+if [ "$total" -gt 3 ]; then
+  echo ""
+  echo "     ❌ Too many vulnerabilities ($total > threshold 3) — push blocked"
+  exit 1
+fi
+
+echo "     ✅ Security audit passed"
+
+echo ""
+
+# ── CHECK 4: Targeted Cypress tests (~5 seconds) ─────────────
+# WHY TARGETED (not full suite):
+#   - Full suite: 26 tests, 25+ seconds, needs remote API = too slow
+#   - Targeted: 5 tests, ~5 seconds, no API calls = fast and reliable
+#
+# WHAT WE RUN:
+#   debug-practice.cy.js — pure frontend logic tests (counter component).
+#   These catch UI behaviour bugs without any network dependency.
+#
+# WHY NOT THE FULL SUITE?
+#   The full suite hits https://quickbook-testing.onrender.com which:
+#   - Has cold start delays (30+ seconds on free tier)
+#   - Can be down for maintenance
+#   - Adds network latency you can't control
+#   A push should never be blocked by someone else's server being slow.
+#   The full suite runs in CI where it belongs.
+#
+# TRADE-OFF DECISION:
+#   We start a local dev server, run 5 fast tests, then kill the server.
+#   Total cost: ~5 seconds. Benefit: catches frontend logic bugs locally.
+echo "4/4  Running targeted Cypress tests (frontend logic only)..."
+
+# Start dev server in background, suppress output
+(cd frontend && npm run dev -- --host 0.0.0.0 > /dev/null 2>&1 &)
+npx wait-on http://localhost:5173 --timeout 30000 2>/dev/null
+
+# Run ONLY the debug-practice spec — fast, no API dependency
+npx cypress run --spec "cypress/e2e/debug-practice.cy.js" --browser electron --quiet 2>/dev/null
+CYPRESS_EXIT=$?
+
+# Clean up: kill the dev server
+kill $(lsof -t -i:5173) 2>/dev/null
+
+if [ $CYPRESS_EXIT -ne 0 ]; then
+  echo ""
+  echo "     ❌ Cypress frontend tests FAILED — push blocked"
+  echo "     Run 'npx cypress open' to debug."
+  exit 1
+fi
+
+echo "     ✅ Cypress frontend tests passed"
+
+echo ""
+echo "══════════════════════════════════════"
+echo "  All pre-push checks passed"
+echo "══════════════════════════════════════"
