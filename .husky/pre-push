@@ -2,61 +2,86 @@
 # Runs BEFORE code is pushed to the remote repository.
 # This is your last line of defence before code leaves your machine.
 # If any check fails, the push is blocked.
+#
+# ── EXERCISE 12: SHOULD CYPRESS RUN IN PRE-PUSH? ────────────
+#
+# This hook now includes Cypress E2E tests after unit tests and
+# frontend build. The goal is to evaluate whether this is a good
+# idea in practice.
+#
+# PROS of running Cypress locally:
+#   - Catches E2E failures before they reach CI
+#   - Faster feedback than waiting for a remote pipeline
+#   - Saves CI minutes (which cost money on paid plans)
+#
+# CONS of running Cypress locally:
+#   - Requires the frontend dev server to be running
+#   - Full suite takes 1-2+ minutes (slow for every push)
+#   - Tests that hit the remote API (Render) depend on network
+#   - Render cold starts can cause timeouts that aren't your fault
+#   - Blocks the developer while tests run
+#
+# VERDICT:
+#   Running the FULL Cypress suite in pre-push is usually too slow
+#   and unreliable for everyday use. A better approach is:
+#     - Pre-push: unit tests + build (fast, no network dependency)
+#     - CI pipeline: full Cypress suite (runs in background, doesn't block you)
+#     - Optional: run a SMALL subset of Cypress locally (e.g. debug-practice
+#       tests that don't need API calls)
+#
+# For this exercise, we include the full suite to observe the timing
+# and reliability issues firsthand.
+# ─────────────────────────────────────────────────────────────
 
-# 1. Run unit tests first
-# Using a subshell (...) so the cd doesn't affect the rest of the script
-echo "Running unit tests before push..."
+# 1. Run backend unit tests
+# These are fast (< 1 second) and have no external dependencies.
+# If your utility functions are broken, everything else will be too.
+# Using a subshell (...) so the cd doesn't affect later commands.
+echo "Running backend unit tests..."
 (cd backend && npm test || exit 1)
 
-# 2. Run security audit
-# Checks all dependencies for known vulnerabilities (CVEs).
-# Uses the same threshold logic as the CI pipeline.
-# Critical/High = instant block. Moderate+Low = threshold of 3.
-
+# 2. Build the frontend
+# Catches missing imports, JSX syntax errors, and env variable issues.
+# Takes ~2-3 seconds locally. No network dependency.
 echo ""
-echo "Running security audit before push..."
-
-root_vulns=$(npm audit --json 2>/dev/null | jq '.metadata.vulnerabilities // {}')
-back_vulns=$(cd backend && npm audit --json 2>/dev/null | jq '.metadata.vulnerabilities // {}')
-front_vulns=$(cd frontend && npm audit --json 2>/dev/null | jq '.metadata.vulnerabilities // {}')
-
-total_crit=$(echo "$root_vulns $back_vulns $front_vulns" | jq -s 'map(.critical // 0) | add')
-total_high=$(echo "$root_vulns $back_vulns $front_vulns" | jq -s 'map(.high // 0) | add')
-total_mod=$(echo "$root_vulns $back_vulns $front_vulns" | jq -s 'map(.moderate // 0) | add')
-total_low=$(echo "$root_vulns $back_vulns $front_vulns" | jq -s 'map(.low // 0) | add')
-total=$(( total_crit + total_high + total_mod + total_low ))
-
-echo ""
-echo "Security Audit: C:$total_crit H:$total_high M:$total_mod L:$total_low (total: $total, threshold: 2)"
-
-if [ "$total_crit" -gt 0 ]; then
-  echo "BLOCKED: Critical vulnerabilities found"
-  exit 1
-fi
-
-if [ "$total_high" -gt 0 ]; then
-  echo "BLOCKED: High vulnerabilities found"
-  exit 1
-fi
-
-if [ "$total" -gt 3 ]; then
-  echo "BLOCKED: $total vulnerabilities exceed threshold of 3"
-  exit 1
-fi
-
-echo "Security audit passed"
-
-# 3. Build frontend
-# "npm run build" compiles the React app for production.
-# This catches things that work in dev mode but break in production:
-#   - Missing imports (dev mode is more forgiving)
-#   - JSX syntax errors
-#   - Environment variable issues
-#   - Dead code that breaks when tree-shaken
-# If it can't build here, it won't build in CI either.
-echo ""
-echo "Building frontend to check for syntax/build errors..."
+echo "Building frontend..."
 (cd frontend && npm run build || exit 1)
 
+# 3. Run Cypress E2E tests
+# ⚠️  THIS IS THE PART TO EVALUATE.
+#
+# For Cypress to work, the frontend dev server MUST be running.
+# If it's not running, Cypress will fail with:
+#   "cy.visit() failed trying to load http://localhost:5173"
+#
+# This means the developer must:
+#   a) Have the frontend running in another terminal, OR
+#   b) The hook must start it (adds complexity and time)
+#
+# We start the dev server here, wait for it, run tests, then kill it.
+# This adds ~15-30 seconds to every push.
 echo ""
-echo "All pre-push checks passed"
+echo "Starting frontend dev server for Cypress..."
+(cd frontend && npm run dev -- --host 0.0.0.0 > /dev/null 2>&1 &)
+
+# Wait for the dev server to be ready.
+# --timeout 30000 = 30 seconds. If it takes longer, something is wrong.
+npx wait-on http://localhost:5173 --timeout 30000
+
+echo "Running Cypress E2E tests..."
+npx cypress run --browser electron
+CYPRESS_EXIT=$?
+
+# Clean up: kill the dev server we started.
+# lsof finds the process on port 5173, kill stops it.
+kill $(lsof -t -i:5173) 2>/dev/null
+
+# If Cypress failed, block the push.
+if [ $CYPRESS_EXIT -ne 0 ]; then
+  echo ""
+  echo "BLOCKED: Cypress E2E tests failed"
+  exit 1
+fi
+
+echo ""
+echo "All pre-push checks passed."
