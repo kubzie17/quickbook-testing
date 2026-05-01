@@ -1,4 +1,0 @@
-echo "Running unit tests before commit"
-
-cd backend
-npm test

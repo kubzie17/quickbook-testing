@@ -6,15 +6,12 @@ export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
   const [message, setMessage] = useState("");
 
-  async function loadBookings() {
-    try {
-      const response = await fetch(`${apiBaseUrl}/bookings`);
-      const data = await response.json();
-      setBookings(data);
-    } catch (error) {
-      setMessage("Failed to load bookings");
-    }
-  }
+  useEffect(() => {
+    fetch(`${apiBaseUrl}/bookings`)
+      .then((response) => response.json())
+      .then((data) => setBookings(data))
+      .catch(() => setMessage("Failed to load bookings"));
+  }, []);
 
   async function handleDelete(id) {
     try {
@@ -24,15 +21,14 @@ export default function MyBookings() {
 
       const data = await response.json();
       setMessage(data.message);
-      loadBookings();
-    } catch (error) {
+
+      fetch(`${apiBaseUrl}/bookings`)
+        .then((response) => response.json())
+        .then((data) => setBookings(data));
+    } catch {
       setMessage("Failed to delete booking");
     }
   }
-
-  useEffect(() => {
-    loadBookings();
-  }, []);
 
   return (
     <div>

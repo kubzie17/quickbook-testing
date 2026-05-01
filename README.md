@@ -1,4 +1,2 @@
 # quickbook-testing
-testing and automation
-
-just for demo
+testing and automation 
