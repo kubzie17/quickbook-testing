@@ -24,7 +24,7 @@ export default function DebugPractice() {
 
       <p data-testid="count-value">Count: {count}</p>
 
-      <button data-testid="increase-count" onClick={increaseCount}>
+      <button data-testid="add-count" onClick={increaseCount}>
         Increase
       </button>
 
