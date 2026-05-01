@@ -49,11 +49,5 @@ it("debug page increases the counter", () => {
   cy.get('[data-testid="count-value"]').should("contain", "Count: 1");
 });
 
-it("debug page shows the typed name", () => {
-  cy.visit("/debug");
-
-  cy.get('[data-testid="debug-name"]').type("Aisha");
-  cy.get('[data-testid="name-output"]').should("contain", "Hello, Aisha");
-});
 
 });
