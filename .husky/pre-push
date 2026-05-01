@@ -8,4 +8,7 @@ echo "building frontend..."
 npm run build || exit 1
 
 cd ..
+echo "running cypress e2e tests..."
+npx cypress run --browser electron || exit 1
+
 echo "all pre-push checks passed."
