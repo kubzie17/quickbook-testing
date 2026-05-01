@@ -1,14 +1,11 @@
-echo "Running backend unit tests before commit..." 
+echo "Running backend unit tests..." 
 
 cd backend 
+npm test || exit 1 
 
+cd ../frontend 
+echo "Building frontend..." 
+npm run build || exit 1 
 
-if [ $? -ne 0 ]; then 
-  echo "Commit blocked: backend unit tests failed." 
-  exit 1 
-else
-  echo "commit allowed."
-fi 
-echo "Backend unit tests passed. Commit allowed." 
-
-
+cd .. 
+echo "All pre-push checks passed." 

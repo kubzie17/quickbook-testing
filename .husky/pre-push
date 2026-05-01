@@ -2,7 +2,7 @@ echo "🦥Running backend unit tests before pushing🦥"
 cd backend
 npm test || exit 1
 
-cd ../frontend
+cd ../fronted
 echo "🦥Running frontend unit tests before pushing🦥"
 npm run build || exit 1
 

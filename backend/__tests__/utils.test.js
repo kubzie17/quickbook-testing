@@ -9,8 +9,8 @@ describe("validateLogin", () => {
   test("valid credentials return success", () => {
     const result = validateLogin("student@example.com", "Password123");
 
-    expect(result.success).toBe(false); // change this back to true
-    expect(result.message).toBe("Login successful");
+    expect(result.success).toBe(true); // change this back to true
+    expect(result.message).toBe("Logged In"); // change this back - Login successful
     expect(result.user.email).toBe("student@example.com");
   });
 
