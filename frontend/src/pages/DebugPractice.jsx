@@ -3,6 +3,7 @@ import { useState } from "react";
 export default function DebugPractice() {
   const [count, setCount] = useState(0);
   const [message, setMessage] = useState("");
+  const [name, setName] = useState("");
 
   function increaseCount() {
     setCount(count + 1);
@@ -24,7 +25,7 @@ export default function DebugPractice() {
 
       <p data-testid="count-value">Count: {count}</p>
 
-      <button data-testid="add-count" onClick={increaseCount}>
+      <button data-testid="increase-count" onClick={increaseCount}>
         Increase
       </button>
 
@@ -33,6 +34,18 @@ export default function DebugPractice() {
       </button>
 
       {message && <p data-testid="debug-message">{message}</p>}
+
+      <div>
+        <label>Name</label>
+        <br />
+        <input
+          data-testid="debug-name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+        />
+      </div>
+
+      {name && <p data-testid="name-output">Hello, {name}</p>}
     </div>
   );
 }
