@@ -57,7 +57,7 @@ function validateLogin(email, password) {
   if (email === "student@example.com" && password === "Password123") {
     return {
       success: true,
-      message: "Logged in",
+      message: "Login successful",
       user: {
         email: "student@example.com",
         role: "user"
