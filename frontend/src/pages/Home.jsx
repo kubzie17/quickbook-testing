@@ -3,6 +3,8 @@ export default function Home() {
     <div>
       <h2>Welcome to QuickBook</h2>
       <p>Book and manage appointments easily.</p>
+      <p>This is the homepage</p>#
+      <p>This is the second change now</p>
     </div>
   );
 }
